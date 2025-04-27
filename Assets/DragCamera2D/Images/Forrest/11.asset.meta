@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a50cddcd719bd914ea588924e1e7a6a6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Images/Forrest/11.asset
+  uploadId: 495558

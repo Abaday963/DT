@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a7b4e901990e63c44b7971dabe46f376
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Images/Forrest/Forrest.prefab
+  uploadId: 495558

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3ac303cd2b61d3c4b81f86353e3b8d87
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Scripts/Runtime/Dc2dSnapBox.cs
+  uploadId: 495558

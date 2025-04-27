@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abf7df032ba60e24aa31f0a35b7865a3
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Prefabs/ZoomTarget.prefab
+  uploadId: 495558

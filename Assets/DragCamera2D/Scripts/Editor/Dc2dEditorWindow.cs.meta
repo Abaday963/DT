@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 083171f348728c6428d667f48a2ffeb3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Scripts/Editor/Dc2dEditorWindow.cs
+  uploadId: 495558

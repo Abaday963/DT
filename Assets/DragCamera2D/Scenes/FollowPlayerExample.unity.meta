@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 358d470cb64b6d94eb3e687a1403a3b8
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Scenes/FollowPlayerExample.unity
+  uploadId: 495558

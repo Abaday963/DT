@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2c6533de7e3f1b749bbdeb7e065cc0e3
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Scenes/SnapBoxExample.unity
+  uploadId: 495558

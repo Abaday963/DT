@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1718396792aef16429826d9c8d7b1c7f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Scripts/Runtime/Dc2dWaypoint.cs
+  uploadId: 495558

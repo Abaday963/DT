@@ -48,5 +48,14 @@ TagManager:
   - name: Character
     uniqueID: 3627368545
     locked: 0
+  - name: Cliff
+    uniqueID: 213416467
+    locked: 0
+  - name: Stand
+    uniqueID: 1830528335
+    locked: 0
+  - name: Ammunition
+    uniqueID: 1935673931
+    locked: 0
   m_RenderingLayers:
   - Default

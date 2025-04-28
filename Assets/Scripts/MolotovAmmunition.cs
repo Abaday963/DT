@@ -18,9 +18,23 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
     [SerializeField] private float explosionDuration = 3f;
     [SerializeField] private float explosionDamage = 10f; // Урон от взрыва
 
+    // Осколки огня
+    [SerializeField] private GameObject fireShardPrefab; // Префаб осколка огня
+    [SerializeField] private int fireShardCount = 5; // Количество осколков
+    [SerializeField] private float fireShardDistance = 0.9f; // Расстояние между осколками
+    [SerializeField] private float fireShardForce = 5f; // Сила, с которой осколки полетят вниз
+    [SerializeField] private float fireShardLifetime = 3f; // Время жизни осколков
+
+    // Аниматор для переключения анимаций
+    [SerializeField] private Animator animator;
+
+    private bool hasExploded = false; // Флаг для отслеживания взрыва
+    private bool isLaunched = false; // Флаг для отслеживания запуска
+
     private void Start()
     {
         ammoRigidbody = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
 
         if (GetComponent<Collider2D>() == null)
         {
@@ -50,6 +64,10 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
 
     private void Update()
     {
+        // Если снаряд уже запущен, не обрабатываем пользовательский ввод
+        if (isLaunched)
+            return;
+
         // Обработка PC ввода
         if (Input.GetMouseButtonDown(0) && !isPressed)
         {
@@ -124,13 +142,16 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
 
     private void OnMouseDown()
     {
-        isPressed = true;
-        ammoRigidbody.bodyType = RigidbodyType2D.Kinematic;
+        if (!isLaunched)
+        {
+            isPressed = true;
+            ammoRigidbody.bodyType = RigidbodyType2D.Kinematic;
+        }
     }
 
     private void OnMouseUp()
     {
-        if (isPressed)
+        if (isPressed && !isLaunched)
         {
             isPressed = false;
             ammoRigidbody.bodyType = RigidbodyType2D.Dynamic;
@@ -148,50 +169,13 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
             springJoint.enabled = false;
         }
 
-        this.enabled = false;
-
-        yield return new WaitForSeconds(2);
-
-        // Создаем новый снаряд
-        SpawnNewAmmo();
-
-        Destroy(gameObject, 5);
-    }
-
-    private void SpawnNewAmmo()
-    {
-        if (ammoPrefab != null && spawnPoint != null)
-        {
-            GameObject newAmmo = Instantiate(ammoPrefab, spawnPoint.position, Quaternion.identity);
-
-            // Убедимся, что компоненты активны
-            MolotovAmmunition newMolotov = newAmmo.GetComponent<MolotovAmmunition>();
-            if (newMolotov != null)
-            {
-                newMolotov.enabled = true;
-            }
-
-            SpringJoint2D newSpringJoint = newAmmo.GetComponent<SpringJoint2D>();
-            if (newSpringJoint != null)
-            {
-                newSpringJoint.enabled = true;
-            }
-        }
-        else
-        {
-            StartCoroutine(ReloadScene());
-        }
-    }
-
-    private IEnumerator ReloadScene()
-    {
-        yield return new WaitForSeconds(1);
-        SceneManager.LoadScene(0);
+        isLaunched = true; // Помечаем снаряд как запущенный
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!isPressed)
+        // Проверяем, что бутылка запущена и еще не взорвалась
+        if (isLaunched && !isPressed && !hasExploded)
         {
             OnImpact();
         }
@@ -210,12 +194,24 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
         // Применяем силу к снаряду
         ammoRigidbody.bodyType = RigidbodyType2D.Dynamic;
         ammoRigidbody.AddForce(force, ForceMode2D.Impulse);
-        this.enabled = false;
+        isLaunched = true; // Помечаем снаряд как запущенный
     }
 
     // Реализация интерфейса IAmmunition
     public void OnImpact()
     {
+        // Проверяем, что взрыв еще не произошел
+        if (hasExploded)
+            return;
+
+        hasExploded = true; // Помечаем, что взрыв произошел
+
+        // Отключаем анимацию Idle и включаем анимацию взрыва
+        if (animator != null)
+        {
+            animator.SetTrigger("Explode"); // Предполагается, что в аниматоре есть триггер "Explode"
+        }
+
         // Создаем взрыв при столкновении с объектами
         if (explosionPrefab != null)
         {
@@ -226,7 +222,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
             Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
             foreach (Collider2D nearbyObject in colliders)
             {
-                // Наносим урон объектам с интерфейсом IDamageable--------------------------------------------
+                // Наносим урон объектам с интерфейсом IDamageable
                 IDamageable damageable = nearbyObject.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
@@ -241,12 +237,62 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
                     rb.AddForce(direction * 10f, ForceMode2D.Impulse);
                 }
             }
+            Debug.Log("vzriv");
+            // Создаем осколки огня
+            SpawnFireShards();
 
             // Отключаем коллизии после взрыва
             Collider2D myCollider = GetComponent<Collider2D>();
             if (myCollider != null)
             {
                 myCollider.enabled = false;
+            }
+
+            // Делаем объект невидимым, но не уничтожаем сразу,
+            // чтобы дать время эффектам взрыва отработать
+            Renderer renderer = GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.enabled = false;
+            }
+
+            // Уничтожаем объект через небольшую задержку
+            Destroy(gameObject, 0.5f);
+        }
+    }
+
+    // Создание осколков огня
+    private void SpawnFireShards()
+    {
+        if (fireShardPrefab != null)
+        {
+            // Вычисляем общую ширину линии осколков
+            float totalWidth = fireShardDistance * (fireShardCount - 1);
+
+            // Начальная позиция (левый край линии)
+            Vector2 startPos = (Vector2)transform.position - new Vector2(totalWidth / 2, 0);
+
+            // Создаем осколки в линию
+            for (int i = 0; i < fireShardCount; i++)
+            {
+                // Вычисляем позицию для текущего осколка
+                Vector2 shardPos = startPos + new Vector2(fireShardDistance * i, 0);
+
+                // Создаем осколок
+                GameObject shard = Instantiate(fireShardPrefab, shardPos, Quaternion.identity);
+
+                // Добавляем осколку физику, если её нет
+                Rigidbody2D shardRb = shard.GetComponent<Rigidbody2D>();
+                if (shardRb == null)
+                {
+                    shardRb = shard.AddComponent<Rigidbody2D>();
+                }
+
+                // Прикладываем силу вниз
+                shardRb.AddForce(Vector2.down * fireShardForce, ForceMode2D.Impulse);
+
+                // Устанавливаем время жизни осколка
+                Destroy(shard, fireShardLifetime);
             }
         }
     }

@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class ArrowAmmunition : MonoBehaviour, IAmmunition
 {
-    [SerializeField] private Rigidbody2D arrowRigidbody;
     [SerializeField] private bool isPressed = false;
     [SerializeField] private float maxDistance = 3f;
     [SerializeField] private float launchForce = 10f; // Множитель силы
@@ -16,6 +15,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
 
     private Vector2 startPosition;
     private Vector2 releaseDirection;
+    private Rigidbody2D arrowRigidbody;
 
     private void Start()
     {
@@ -230,6 +230,16 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Проверяем, является ли столкнувшийся объект боеприпасом
+        IAmmunition ammunitionComponent = collision.gameObject.GetComponent<IAmmunition>();
+
+        // Если объект - боеприпас, то игнорируем столкновение
+        if (ammunitionComponent != null)
+        {
+            Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.collider);
+            return;
+        }
+
         // Вызываем метод интерфейса IAmmunition
         OnImpact();
 

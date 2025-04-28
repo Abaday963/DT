@@ -14,7 +14,7 @@ TagManager:
   - UI
   - Player
   - Enemy
-  - 
+  - Fire shard
   - 
   - 
   - 
@@ -56,6 +56,9 @@ TagManager:
     locked: 0
   - name: Ammunition
     uniqueID: 1935673931
+    locked: 0
+  - name: Effect
+    uniqueID: 4231784699
     locked: 0
   m_RenderingLayers:
   - Default

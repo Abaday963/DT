@@ -122,7 +122,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
             if ((arrowRigidbody.position - shootRigid.position).sqrMagnitude > 0.1f)
             {
                 float angle = Mathf.Atan2(releaseDirection.y, releaseDirection.x) * Mathf.Rad2Deg;
-                transform.rotation = Quaternion.Euler(0, 0, angle + 90); // +90 чтобы острие стрелы смотрело вперед
+                transform.rotation = Quaternion.Euler(0, 0, angle - 90); // +90 чтобы острие стрелы смотрело вперед
             }
         }
 

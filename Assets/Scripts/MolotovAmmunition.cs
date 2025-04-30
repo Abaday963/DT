@@ -9,19 +9,15 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
     [SerializeField] private bool isPressed = false;
     [SerializeField] private float maxDistance = 3f;
     [SerializeField] private Rigidbody2D shootRigid; // Ссылка на рогатку
-    [SerializeField] public GameObject ammoPrefab; // Префаб этого же боеприпаса
-    [SerializeField] public Transform spawnPoint; // Точка появления нового боеприпаса
 
     // Компоненты взрыва
     [SerializeField] private GameObject explosionPrefab;
-    [SerializeField] private float explosionRadius = 3f;
     [SerializeField] private float explosionDuration = 3f;
-    [SerializeField] private float explosionDamage = 10f; // Урон от взрыва
 
     // Осколки огня
     [SerializeField] private GameObject fireShardPrefab; // Префаб осколка огня
     [SerializeField] private int fireShardCount = 5; // Количество осколков
-    [SerializeField] private float fireShardDistance = 0.9f; // Расстояние между осколками
+    [SerializeField] private float fireShardDistance = 1.2f; // Расстояние между осколками
     [SerializeField] private float fireShardForce = 5f; // Сила, с которой осколки полетят вниз
     [SerializeField] private float fireShardLifetime = 3f; // Время жизни осколков
 
@@ -31,35 +27,52 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
     private bool hasExploded = false; // Флаг для отслеживания взрыва
     private bool isLaunched = false; // Флаг для отслеживания запуска
 
+    // Ссылка на менеджер боеприпасов
+    private AmmunitionManager ammunitionManager;
+
     private void Start()
     {
         ammoRigidbody = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
 
         if (GetComponent<Collider2D>() == null)
         {
             gameObject.AddComponent<CircleCollider2D>();
         }
 
-        // Если не назначена рогатка, найдем её автоматически
+        // Если не назначена рогатка, найдем её автоматически по тегу FirstSlingshot
         if (shootRigid == null)
         {
-            GameObject slingshot = GameObject.FindGameObjectWithTag("Slingshot");
+            GameObject slingshot = GameObject.FindGameObjectWithTag("FirstSlingshot");
             if (slingshot != null)
             {
                 shootRigid = slingshot.GetComponent<Rigidbody2D>();
+                if (shootRigid == null)
+                {
+                    Debug.LogError("На объекте с тегом 'FirstSlingshot' не найден Rigidbody2D!");
+                }
+            }
+            else
+            {
+                Debug.LogError("Не найден объект с тегом 'FirstSlingshot' в сцене!");
             }
         }
 
-        // Если не назначена точка спавна, попробуем найти её
-        if (spawnPoint == null)
+        // Если не назначен менеджер боеприпасов, найдем его
+        if (ammunitionManager == null)
         {
-            GameObject spawner = GameObject.FindGameObjectWithTag("AmmoSpawner");
-            if (spawner != null)
-            {
-                spawnPoint = spawner.transform;
-            }
+            ammunitionManager = AmmunitionManager.Instance;
         }
+    }
+
+    // Метод для установки менеджера боеприпасов извне
+    public void SetAmmunitionManager(AmmunitionManager manager)
+    {
+        ammunitionManager = manager;
     }
 
     private void Update()
@@ -135,9 +148,12 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
 
     private void ReleaseAmmo()
     {
-        isPressed = false;
-        ammoRigidbody.bodyType = RigidbodyType2D.Dynamic;
-        StartCoroutine(Release());
+        if (isPressed)
+        {
+            isPressed = false;
+            ammoRigidbody.bodyType = RigidbodyType2D.Dynamic;
+            StartCoroutine(Release());
+        }
     }
 
     private void OnMouseDown()
@@ -153,9 +169,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
     {
         if (isPressed && !isLaunched)
         {
-            isPressed = false;
-            ammoRigidbody.bodyType = RigidbodyType2D.Dynamic;
-            StartCoroutine(Release());
+            ReleaseAmmo();
         }
     }
 
@@ -170,6 +184,16 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
         }
 
         isLaunched = true; // Помечаем снаряд как запущенный
+
+        // Сообщаем менеджеру о запуске боеприпаса
+        if (ammunitionManager != null)
+        {
+            ammunitionManager.OnMolotovLaunched();
+        }
+        else
+        {
+            Debug.LogWarning("AmmunitionManager не найден!");
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -195,6 +219,12 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
         ammoRigidbody.bodyType = RigidbodyType2D.Dynamic;
         ammoRigidbody.AddForce(force, ForceMode2D.Impulse);
         isLaunched = true; // Помечаем снаряд как запущенный
+
+        // Сообщаем менеджеру о запуске боеприпаса
+        if (ammunitionManager != null)
+        {
+            ammunitionManager.OnMolotovLaunched();
+        }
     }
 
     // Реализация интерфейса IAmmunition
@@ -218,26 +248,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
             GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             Destroy(explosion, explosionDuration);
 
-            // Обнаруживаем объекты в радиусе взрыва
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
-            foreach (Collider2D nearbyObject in colliders)
-            {
-                // Наносим урон объектам с интерфейсом IDamageable
-                IDamageable damageable = nearbyObject.GetComponent<IDamageable>();
-                if (damageable != null)
-                {
-                    damageable.TakeDamage(explosionDamage);
-                }
-
-                // Добавляем силу, чтобы оттолкнуть объекты от взрыва
-                Rigidbody2D rb = nearbyObject.GetComponent<Rigidbody2D>();
-                if (rb != null)
-                {
-                    Vector2 direction = (nearbyObject.transform.position - transform.position).normalized;
-                    rb.AddForce(direction * 10f, ForceMode2D.Impulse);
-                }
-            }
-            Debug.Log("vzriv");
+            Debug.Log("Взрыв молотова");
             // Создаем осколки огня
             SpawnFireShards();
 
@@ -257,7 +268,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
             }
 
             // Уничтожаем объект через небольшую задержку
-            Destroy(gameObject, 0.5f);
+            Destroy(gameObject, 0.04f);
         }
     }
 

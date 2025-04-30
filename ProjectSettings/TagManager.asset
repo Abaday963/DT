@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - Enemy
+  - Slingshot
+  - FirstSlingshot
   layers:
   - Default
   - TransparentFX

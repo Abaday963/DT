@@ -1,9 +1,7 @@
 using UnityEngine;
-using System.Collections;
 
 public class Building1 : MonoBehaviour
 {
-    public GameObject fireEffectObject;
     public LayerMask fireLayer;
     private bool isOnFire = false;
 
@@ -11,42 +9,26 @@ public class Building1 : MonoBehaviour
     {
         Debug.Log($"2D Collision detected with: {collision.gameObject.name}");
 
-        // Check if object is not already on fire 
-        // And collision is with object on 'Shard fire' layer
         if (!isOnFire && ((1 << collision.gameObject.layer) & fireLayer) != 0)
         {
-            // Enable fire effect child object
-            if (fireEffectObject != null)
+            // Включить первый дочерний объект как эффект огня
+            if (transform.childCount > 0)
             {
-                fireEffectObject.SetActive(true);
+                Transform fireEffect = transform.GetChild(0);
+                fireEffect.gameObject.SetActive(true);
+
                 isOnFire = true;
 
-                // Notify GameManager that building has caught fire
-                GameManager.Instance.OnBuilding1Caught();
-
-                // Start burning process
-                StartCoroutine(HandleBurning());
+                Debug.Log("Object caught fire from specific object!");
             }
             else
             {
-                Debug.LogWarning("Fire effect object not assigned!");
+                Debug.LogWarning("No child objects to activate fire effect!");
             }
         }
     }
 
-    // Coroutine to manage burning process
-    private IEnumerator HandleBurning()
-    {
-        Debug.Log("Object caught fire from specific object!");
-
-        // Burning duration
-        yield return new WaitForSeconds(5f);
-
-        // Stop burning
-        if (fireEffectObject != null)
-        {
-            fireEffectObject.SetActive(false);
-            isOnFire = false;
-        }
-    }
+    // Геттер: возвращает, загорелось ли здание
+    public bool IsOnFire() => isOnFire;
+    
 }

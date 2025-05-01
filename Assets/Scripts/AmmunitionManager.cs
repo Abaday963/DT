@@ -100,7 +100,7 @@
                         molotovScript.SetAmmunitionManager(this);
                     }
 
-                    Debug.Log("Создан новый Молотов");
+                    //Debug.Log("Создан новый Молотов");
                 }
             }
             else

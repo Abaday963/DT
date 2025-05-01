@@ -7,7 +7,7 @@ public class Building1 : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log($"2D Collision detected with: {collision.gameObject.name}");
+        //Debug.Log($"2D Collision detected with: {collision.gameObject.name}");
 
         if (!isOnFire && ((1 << collision.gameObject.layer) & fireLayer) != 0)
         {
@@ -19,7 +19,7 @@ public class Building1 : MonoBehaviour
 
                 isOnFire = true;
 
-                Debug.Log("Object caught fire from specific object!");
+                //Debug.Log("Object caught fire from specific object!");
             }
             else
             {

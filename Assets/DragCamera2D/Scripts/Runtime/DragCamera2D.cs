@@ -413,13 +413,13 @@ public class DragCamera2D : MonoBehaviour
         float boundsMinY = bounds.transform.position.y;
 
         if (tr.x > boundsMaxX && bl.x < boundsMinX) {
-            Debug.Log("User tried to zoom out past x axis bounds - locked to bounds");
+            //Debug.Log("User tried to zoom out past x axis bounds - locked to bounds");
             Camera.main.orthographicSize = Camera.main.orthographicSize - zoomStepSize; // zoomControl in to compensate
             clampZoom();
         }
 
         if (tr.y > boundsMaxY && bl.y < boundsMinY) {
-            Debug.Log("User tried to zoom out past y axis bounds - locked to bounds");
+            //Debug.Log("User tried to zoom out past y axis bounds - locked to bounds");
             Camera.main.orthographicSize = Camera.main.orthographicSize - zoomStepSize; // zoomControl in to compensate
             clampZoom();
         }

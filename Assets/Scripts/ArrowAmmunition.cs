@@ -11,7 +11,6 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
     [SerializeField] private Rigidbody2D shootRigid; // Ссылка на рогатку
     [SerializeField] public GameObject ammoPrefab; // Префаб этого же боеприпаса
     [SerializeField] public Transform spawnPoint; // Точка появления нового боеприпаса
-    [SerializeField] private float arrowDamage = 5f; // Урон от стрелы
 
     private Vector2 startPosition;
     private Vector2 releaseDirection;
@@ -243,12 +242,6 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
         // Вызываем метод интерфейса IAmmunition
         OnImpact();
 
-        // Наносим урон, если объект поддерживает интерфейс IDamageable
-        IDamageable damageable = collision.gameObject.GetComponent<IDamageable>();
-        if (damageable != null)
-        {
-            damageable.TakeDamage(arrowDamage);
-        }
     }
 
     // Реализация интерфейса IAmmunition

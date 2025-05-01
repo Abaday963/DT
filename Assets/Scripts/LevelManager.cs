@@ -1,165 +1,199 @@
-//using UnityEngine;
-//public class LevelManager : MonoBehaviour
-//{
-//    public static LevelManager Instance { get; private set; }
-//    [Header("Условия уровня")]
-//    [SerializeField] private LevelObjective[] objectives;
-//    [SerializeField] private int requiredObjectivesForWin = 1;
-//    [Header("Таймеры и ожидания")]
-//    [SerializeField] private float failWaitTime = 3.0f;
-//    private int completedObjectives = 0;
-//    private int currentStars = 0;
-//    private bool isLevelCompleted = false;
-//    private bool isLevelFailed = false;
-//    private float failTimer = 0f;
-//    private bool waitingForFailure = false;
-//    private void Awake()
-//    {
-//        if (Instance == null)
-//            Instance = this;
-//        else
-//        {
-//            Destroy(gameObject);
-//            return;
-//        }
-//        ResetLevelState();
-//    }
-//    private void Update()
-//    {
-//        if (waitingForFailure && !isLevelCompleted)
-//        {
-//            failTimer += Time.deltaTime;
-//            if (failTimer >= failWaitTime)
-//            {
-//                waitingForFailure = false;
-//                CheckLevelOutcome();
-//            }
-//        }
-//    }
-//    public void ResetLevelState()
-//    {
-//        completedObjectives = 0;
-//        currentStars = 0;
-//        isLevelCompleted = false;
-//        isLevelFailed = false;
-//        waitingForFailure = false;
-//        failTimer = 0f;
-//        UIManager.Instance?.HideAll();
-//        foreach (var objective in objectives)
-//            objective?.ResetObjective();
-//        WinConditionManager.Instance?.ResetConditions();
-//    }
-//    public void OnObjectiveCompleted(LevelObjective objective)
-//    {
-//        completedObjectives++;
-//        if (completedObjectives >= requiredObjectivesForWin && !isLevelCompleted)
-//        {
-//            isLevelCompleted = true;
-//            currentStars = WinConditionManager.Instance?.CalculateStars() ?? 1;
-//            GameManager.Instance?.SetLevelStars(currentStars);
-//            HandleLevelWin();
-//        }
-//    }
-//    public void OnResourcesExhausted()
-//    {
-//        if (!isLevelCompleted && !waitingForFailure)
-//        {
-//            waitingForFailure = true;
-//            failTimer = 0f;
-//        }
-//    }
-//    private void CheckLevelOutcome()
-//    {
-//        if (!isLevelCompleted)
-//        {
-//            isLevelFailed = true;
-//            HandleLevelLose();
-//        }
-//    }
-//    private void HandleLevelWin()
-//    {
-//        UIManager.Instance?.ShowWinScreen(currentStars);
-//    }
-//    private void HandleLevelLose()
-//    {
-//        UIManager.Instance?.ShowLoseScreen();
-//    }
-//    public void LoadNextLevel()
-//    {
-//        GameManager.Instance?.LoadNextLevel();
-//    }
-//    public void RestartLevel()
-//    {
-//        GameManager.Instance?.RestartCurrentLevel();
-//    }
-//    public void ReturnToMainMenu()
-//    {
-//        GameManager.Instance?.LoadMainMenu();
-//    }
-//}
+using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
-//public class AmmunitionManager : MonoBehaviour
-//{
-//    public static AmmunitionManager Instance { get; private set; }
-//    [SerializeField] private int totalAmmunition = 3;
-//    [SerializeField] private int remainingAmmunition;
-//    [SerializeField] private Image[] ammunitionIcons;
-//    private void Awake()
-//    {
-//        // Singleton implementation
-//        if (Instance == null)
-//        {
-//            Instance = this;
-//            // Удалите DontDestroyOnLoad отсюда
-//        }
-//        else
-//        {
-//            Destroy(gameObject);
-//            return;
-//        }
-//        // Переместите это в метод инициализации
-//        ResetAmmunition();
-//    }
-//    // Новый метод для сброса патронов
-//    public void ResetAmmunition()
-//    {
-//        remainingAmmunition = totalAmmunition;
-//        // Активируем все иконки патронов
-//        if (ammunitionIcons != null)
-//        {
-//            for (int i = 0; i < ammunitionIcons.Length; i++)
-//            {
-//                if (ammunitionIcons[i] != null)
-//                {
-//                    ammunitionIcons[i].gameObject.SetActive(true);
-//                }
-//            }
-//        }
-//    }
-//    public void OnAmmunitionImpact()
-//    {
-//        // Decrease remaining ammunition
-//        if (remainingAmmunition > 0)
-//        {
-//            // Decrease index before removing icon
-//            remainingAmmunition--;
-//            // Remove corresponding UI element
-//            if (ammunitionIcons != null && remainingAmmunition >= 0 && remainingAmmunition < ammunitionIcons.Length)
-//            {
-//                ammunitionIcons[remainingAmmunition].gameObject.SetActive(false);
-//            }
-//            if (remainingAmmunition <= 0)
-//            {
-//                //
-//            }
-//        }
-//    }
-//    public int GetRemainingAmmunition()
-//    {
-//        return remainingAmmunition;
-//    }
-//    public int GetTotalAmmunition()
-//    {
-//        return totalAmmunition;
-//    }
-//}
+public class LevelManager : MonoBehaviour
+{
+    [Header("Условия победы и проигрыша")]
+    [SerializeField] private WinCondition[] winConditions;
+    [SerializeField] private LoseCondition[] loseConditions;
+
+    [Header("Ссылки на объекты уровня")]
+    [SerializeField] private Building1 targetBuilding;
+    [SerializeField] private AmmunitionManager ammunitionManager;
+
+    [Header("Настройки")]
+    [SerializeField] private bool autoCheckForWin = true;
+    [SerializeField] private float autoCheckInterval = 0.5f;
+
+    private bool isLevelCompleted = false;
+    private float autoCheckTimer = 0f;
+    private List<WinCondition> completedWinConditions = new List<WinCondition>();
+
+    // События для GameManager и UI
+    public delegate void LevelEvent(int starsEarned, List<string> completedConditions);
+    public event LevelEvent OnLevelWon;
+    public event LevelEvent OnLevelLost;
+
+    private void Start()
+    {
+        FindAndSetupReferences();
+        ResetAllConditions();
+    }
+
+    private void Update()
+    {
+        if (isLevelCompleted) return;
+
+        // Автоматическая проверка условий
+        if (autoCheckForWin)
+        {
+            autoCheckTimer += Time.deltaTime;
+            if (autoCheckTimer >= autoCheckInterval)
+            {
+                autoCheckTimer = 0f;
+                CheckWinConditions();
+                CheckLoseConditions();
+            }
+        }
+    }
+
+    // Находим и настраиваем ссылки на объекты, если они не заданы в инспекторе
+    private void FindAndSetupReferences()
+    {
+        if (targetBuilding == null)
+        {
+            targetBuilding = FindAnyObjectByType<Building1>();
+        }
+
+        if (ammunitionManager == null)
+        {
+            ammunitionManager = FindAnyObjectByType<AmmunitionManager>();
+        }
+
+        // Находим все условия победы и проигрыша, если массивы пусты
+        if (winConditions == null || winConditions.Length == 0)
+        {
+            winConditions = FindObjectsOfType<WinCondition>();
+        }
+
+        if (loseConditions == null || loseConditions.Length == 0)
+        {
+            loseConditions = FindObjectsOfType<LoseCondition>();
+        }
+
+    }
+
+    // Сбрасываем все условия
+    public void ResetAllConditions()
+    {
+        isLevelCompleted = false;
+        completedWinConditions.Clear();
+
+        if (winConditions != null)
+        {
+            foreach (var condition in winConditions)
+            {
+                if (condition != null) condition.ResetCondition();
+            }
+        }
+
+        if (loseConditions != null)
+        {
+            foreach (var condition in loseConditions)
+            {
+                if (condition != null) condition.ResetCondition();
+            }
+        }
+
+        // Сбрасываем таймер автопроверки
+        autoCheckTimer = 0f;
+    }
+
+    // Проверка условий победы
+    public void CheckWinConditions()
+    {
+        if (isLevelCompleted) return;
+
+        // Проверяем каждое условие победы
+        foreach (var condition in winConditions)
+        {
+            if (condition != null && condition.IsConditionMet() && !completedWinConditions.Contains(condition))
+            {
+                completedWinConditions.Add(condition);
+                Debug.Log($"Выполнено условие победы: {condition.Name}");
+            }
+        }
+
+        // Если есть хотя бы одно выполненное условие и здание горит - уровень пройден
+        if (completedWinConditions.Count > 0 && targetBuilding.IsOnFire())
+        {
+            WinLevel();
+        }
+    }
+
+    // Проверка условий проигрыша
+    public void CheckLoseConditions()
+    {
+        if (isLevelCompleted) return;
+
+        foreach (var condition in loseConditions)
+        {
+            if (condition != null && condition.IsConditionMet())
+            {
+                LoseLevel();
+                return;
+            }
+        }
+    }
+
+    // Вызывается при победе
+    private void WinLevel()
+    {
+        if (isLevelCompleted) return;
+
+        isLevelCompleted = true;
+
+        // Подсчитываем максимальное количество звезд
+        int starsEarned = completedWinConditions.Count > 0
+            ? completedWinConditions.Max(c => c.Stars)
+            : 0;
+
+        // Получаем имена выполненных условий
+        List<string> completedConditionNames = completedWinConditions
+            .Select(c => c.Name)
+            .ToList();
+
+        Debug.Log($"Уровень пройден! Заработано звезд: {starsEarned}");
+
+        // Вызываем событие победы
+        OnLevelWon?.Invoke(starsEarned, completedConditionNames);
+    }
+
+    // Вызывается при проигрыше
+    private void LoseLevel()
+    {
+        if (isLevelCompleted) return;
+
+        isLevelCompleted = true;
+
+        // Получаем причины проигрыша
+        List<string> loseReasons = loseConditions
+            .Where(c => c != null && c.IsConditionMet())
+            .Select(c => c.Name)
+            .ToList();
+
+        Debug.Log($"Уровень проигран! Причина: {string.Join(", ", loseReasons)}");
+
+        // Вызываем событие проигрыша
+        OnLevelLost?.Invoke(0, loseReasons);
+    }
+
+    // Методы для работы с UI
+    public List<string> GetCompletedConditionNames()
+    {
+        return completedWinConditions.Select(c => c.Name).ToList();
+    }
+
+    public int GetMaxStarsEarned()
+    {
+        return completedWinConditions.Count > 0
+            ? completedWinConditions.Max(c => c.Stars)
+            : 0;
+    }
+
+    public bool IsLevelCompleted()
+    {
+        return isLevelCompleted;
+    }
+}

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 35a3a548ff5481b46b270b5ed50b2b21
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Documentation/DragCamera2D_UserGuide.rtf
+  uploadId: 495558

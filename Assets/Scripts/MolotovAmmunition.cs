@@ -22,7 +22,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
     [SerializeField] private float fireShardLifetime = 3f; // Время жизни осколков
 
     // Аниматор для переключения анимаций
-    [SerializeField] private Animator animator;
+    //[SerializeField] private Animator animator;
 
     private bool hasExploded = false; // Флаг для отслеживания взрыва
     private bool isLaunched = false; // Флаг для отслеживания запуска
@@ -34,10 +34,10 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
     {
         ammoRigidbody = GetComponent<Rigidbody2D>();
 
-        if (animator == null)
-        {
-            animator = GetComponent<Animator>();
-        }
+        //if (animator == null)
+        //{
+        //    animator = GetComponent<Animator>();
+        //}
 
         if (GetComponent<Collider2D>() == null)
         {
@@ -237,10 +237,10 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
         hasExploded = true; // Помечаем, что взрыв произошел
 
         // Отключаем анимацию Idle и включаем анимацию взрыва
-        if (animator != null)
-        {
-            animator.SetTrigger("Explode"); // Предполагается, что в аниматоре есть триггер "Explode"
-        }
+        //if (animator != null)
+        //{
+        //    animator.SetTrigger("Explode"); // Предполагается, что в аниматоре есть триггер "Explode"
+        //}
 
         // Создаем взрыв при столкновении с объектами
         if (explosionPrefab != null)
@@ -248,7 +248,6 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
             GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             Destroy(explosion, explosionDuration);
 
-            Debug.Log("Взрыв молотова");
             // Создаем осколки огня
             SpawnFireShards();
 

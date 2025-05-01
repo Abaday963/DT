@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ad5bd116d9e9d0c4b9734bf59a4b2cf3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126070
+  packageName: Drag Camera 2D
+  packageVersion: 1.7.1
+  assetPath: Assets/DragCamera2D/Images/TileSetPallettes/Tiles/terrain_atlas_464.asset
+  uploadId: 495558

@@ -11,6 +11,8 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
     [SerializeField] private Rigidbody2D shootRigid; // Ссылка на рогатку
     [SerializeField] public GameObject ammoPrefab; // Префаб этого же боеприпаса
     [SerializeField] public Transform spawnPoint; // Точка появления нового боеприпаса
+    [SerializeField] private ArrowHitMolotovCondition arrowHitCondition;
+    [SerializeField] private LayerMask molotovLayer; // Слой для молотова
 
     private Vector2 startPosition;
     private Vector2 releaseDirection;
@@ -238,7 +240,15 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.collider);
             return;
         }
+        if (((1 << collision.gameObject.layer) & molotovLayer) != 0)
+        {
+            Debug.Log("Стрела попала в молотов!");
 
+            if (arrowHitCondition != null)
+            {
+                arrowHitCondition.OnArrowHitMolotov();
+            }
+        }
         // Вызываем метод интерфейса IAmmunition
         OnImpact();
 

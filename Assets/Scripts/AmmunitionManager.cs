@@ -132,7 +132,7 @@
         // Небольшая задержка перед созданием нового боеприпаса
         private IEnumerator DelayedSpawn()
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(2f);
             SpawnMolotov();
         }
 

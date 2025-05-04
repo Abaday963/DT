@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+//using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -32,8 +34,22 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        // Находим все UI элементы, если они не заданы в инспекторе
         FindUIReferences();
+        AssignMainCameraToCanvases();
+    }
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        AssignMainCameraToCanvases();
     }
 
     private void FindUIReferences()
@@ -154,4 +170,24 @@ public class UIManager : MonoBehaviour
         if (starsText != null)
             starsText.text = "0";
     }
+    private void AssignMainCameraToCanvases()
+    {
+        Camera mainCam = Camera.main;
+        if (mainCam == null)
+        {
+            Debug.LogWarning("UIManager: MainCamera не найдена");
+            return;
+        }
+
+        Canvas[] canvases = GetComponentsInChildren<Canvas>(true);
+        foreach (var canvas in canvases)
+        {
+            if (canvas.renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == null)
+            {
+                canvas.worldCamera = mainCam;
+                Debug.Log("UIManager: Назначена MainCamera для Canvas: " + canvas.name);
+            }
+        }
+    }
+
 }

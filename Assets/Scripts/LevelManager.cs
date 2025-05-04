@@ -132,6 +132,7 @@ public class LevelManager : MonoBehaviour
             if (condition != null && condition.IsConditionMet())
             {
                 LoseLevel();
+                Debug.Log("v level managere uroven proigran");
                 return;
             }
         }

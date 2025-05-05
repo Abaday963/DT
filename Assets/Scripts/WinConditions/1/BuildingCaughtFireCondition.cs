@@ -1,34 +1,44 @@
 ﻿using UnityEngine;
-
 public class BuildingCaughtFireCondition : WinCondition
 {
     [SerializeField] private Building1 targetBuilding;
+    private bool conditionCompleted = false;
 
     private void Awake()
     {
-        starsAwarded = 1;
+        starsAwarded = 1; // Всегда устанавливаем 1 звезду
         conditionName = "Поджигание здания";
         conditionDescription = "Поджечь здание любым количеством боеприпаса";
+        if (targetBuilding == null)
+        {
+            targetBuilding = FindAnyObjectByType<Building1>();
+        }
     }
 
     private void Update()
     {
-        // Постоянно проверяем, загорелось ли здание
-        if (IsConditionMet() && GameManager.Instance != null)
+        // Проверяем загорелось ли здание и не было ли уже зарегистрировано выполнение условия
+        if (!conditionCompleted && targetBuilding != null && targetBuilding.IsOnFire())
         {
+            conditionCompleted = true;
+
             // Оповещаем менеджер уровня о выполнении условия
-            GameManager.Instance.LevelManager.CheckWinConditions();
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.LevelManager.CheckWinConditions();
+            }
+
+            Debug.Log("Условие 'Поджигание здания' выполнено");
         }
     }
 
     public override bool IsConditionMet()
     {
-        // Используем существующий геттер IsOnFire() из Building1
-        return targetBuilding != null && targetBuilding.IsOnFire();
+        return conditionCompleted;
     }
 
     public override void ResetCondition()
     {
-        // Сброс происходит через перезапуск уровня и сброс состояния здания
+        conditionCompleted = false;
     }
 }

@@ -17,6 +17,8 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
     private Vector2 startPosition;
     private Vector2 releaseDirection;
     private Rigidbody2D arrowRigidbody;
+    private bool wasLaunched = false; // Флаг, указывающий, что стрела была выстрелена
+    private Collider2D arrowCollider; // Ссылка на коллайдер стрелы
 
     private void Start()
     {
@@ -28,6 +30,16 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
         if (GetComponent<Collider2D>() == null)
         {
             gameObject.AddComponent<BoxCollider2D>();
+        }
+
+        // Получаем ссылку на коллайдер
+        arrowCollider = GetComponent<Collider2D>();
+
+        // Установим триггер для коллайдера, пока стрела не выстрелена
+        // Это позволит ей проходить сквозь другие объекты
+        if (arrowCollider != null)
+        {
+            arrowCollider.isTrigger = true;
         }
 
         // Если не назначена рогатка, найдем её автоматически
@@ -171,6 +183,15 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
             Destroy(springJoint);
         }
 
+        // Теперь стрела выстрелилась, можно обрабатывать столкновения
+        wasLaunched = true;
+
+        // Отключаем триггер, чтобы стрела могла нормально сталкиваться
+        if (arrowCollider != null)
+        {
+            arrowCollider.isTrigger = false;
+        }
+
         // Применяем силу - БЕЗ знака минус!
         arrowRigidbody.AddForce(releaseDirection * force, ForceMode2D.Impulse);
 
@@ -231,15 +252,16 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Проверяем, является ли столкнувшийся объект боеприпасом
-        IAmmunition ammunitionComponent = collision.gameObject.GetComponent<IAmmunition>();
-
-        // Если объект - боеприпас, то игнорируем столкновение
-        if (ammunitionComponent != null)
+        // Если стрела не была выстрелена, игнорируем столкновения
+        if (!wasLaunched)
         {
+            // Игнорируем это конкретное столкновение
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.collider);
             return;
         }
+
+        Debug.Log("Стрела попала !!!!!!!!!");
+
         if (((1 << collision.gameObject.layer) & molotovLayer) != 0)
         {
             Debug.Log("Стрела попала в молотов!");
@@ -251,10 +273,8 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
         }
         // Вызываем метод интерфейса IAmmunition
         OnImpact();
-
     }
 
-    // Реализация интерфейса IAmmunition
     public void Launch(Vector2 force)
     {
         // Удаляем пружинное соединение
@@ -263,6 +283,15 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
         {
             springJoint.enabled = false;
             Destroy(springJoint);
+        }
+
+        // Отмечаем, что стрела выстрелена
+        wasLaunched = true;
+
+        // Отключаем триггер, чтобы стрела могла нормально сталкиваться
+        if (arrowCollider != null)
+        {
+            arrowCollider.isTrigger = false;
         }
 
         // Применяем силу

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-
 public class BuildingCaughtFireFirstShotCondition : WinCondition
 {
     [SerializeField] private Building1 targetBuilding;
@@ -8,7 +7,7 @@ public class BuildingCaughtFireFirstShotCondition : WinCondition
 
     private void Awake()
     {
-        starsAwarded = 2;
+        starsAwarded = 1; // Всегда устанавливаем 1 звезду
         conditionName = "Меткий стрелок";
         conditionDescription = "Поджечь здание первым боеприпасом";
     }

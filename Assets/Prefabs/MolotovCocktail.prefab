@@ -205,9 +205,9 @@ SpringJoint2D:
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
   m_AutoConfigureDistance: 1
-  m_Distance: 0.7192273
+  m_Distance: 7.03
   m_DampingRatio: 0
-  m_Frequency: 5
+  m_Frequency: 6
 --- !u!114 &4004434297090596146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,7 +222,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ammoRigidbody: {fileID: 0}
   isPressed: 0
-  maxDistance: 3
+  maxDistance: 4
   shootRigid: {fileID: 0}
   explosionPrefab: {fileID: 6394536459978422649, guid: d49cc96f37e4fea4884df82553909320, type: 3}
   explosionDuration: 3

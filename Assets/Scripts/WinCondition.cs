@@ -1,11 +1,10 @@
 using UnityEngine;
 
-// Базовый класс для условий победы
 public abstract class WinCondition : MonoBehaviour
 {
-    [SerializeField] protected string conditionName;
-    [SerializeField] protected string conditionDescription;
     [SerializeField] protected int starsAwarded = 1;
+    protected string conditionName;
+    protected string conditionDescription;
 
     public string Name => conditionName;
     public string Description => conditionDescription;

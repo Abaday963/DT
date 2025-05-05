@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 public class LevelManager : MonoBehaviour
 {
@@ -24,7 +25,6 @@ public class LevelManager : MonoBehaviour
     public delegate void LevelEvent(int starsEarned, List<string> completedConditions);
     public event LevelEvent OnLevelWon;
     public event LevelEvent OnLevelLost;
-
     private void Start()
     {
         FindAndSetupReferences();
@@ -34,6 +34,17 @@ public class LevelManager : MonoBehaviour
     private void Update()
     {
         if (isLevelCompleted) return;
+
+        // Отслеживаем победу с задержкой
+        if (victoryPending)
+        {
+            victoryTimer += Time.deltaTime;
+            if (victoryTimer >= victoryDelay)
+            {
+                WinLevel(); // Повторный вызов завершит уровень
+                return;
+            }
+        }
 
         // Автоматическая проверка условий
         if (autoCheckForWin)
@@ -47,6 +58,7 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
+
 
     // Находим и настраиваем ссылки на объекты, если они не заданы в инспекторе
     private void FindAndSetupReferences()
@@ -139,26 +151,41 @@ public class LevelManager : MonoBehaviour
     }
 
     // Вызывается при победе
+    private float victoryDelay = 1f; // Задержка в секундах перед финальной проверкой
+    private bool victoryPending = false;
+    private float victoryTimer = 0f;
+
+    // Изменения в методе WinLevel()
     private void WinLevel()
     {
-        if (isLevelCompleted) return;
+        if (isLevelCompleted || victoryPending) return;
+
+        victoryPending = true;
+        Debug.Log("Основное условие выполнено! Проверка дополнительных условий через задержку...");
+        StartCoroutine(DelayedVictory());
+    }
+
+    private IEnumerator DelayedVictory()
+    {
+        yield return new WaitForSeconds(victoryDelay);
 
         isLevelCompleted = true;
 
-        // Подсчитываем максимальное количество звезд
-        int starsEarned = completedWinConditions.Count > 0
-            ? completedWinConditions.Max(c => c.Stars)
-            : 0;
-
-        // Получаем имена выполненных условий
+        int starsEarned = completedWinConditions.Count;
         List<string> completedConditionNames = completedWinConditions
             .Select(c => c.Name)
             .ToList();
 
         Debug.Log($"Уровень пройден! Заработано звезд: {starsEarned}");
 
-        // Вызываем событие победы
         OnLevelWon?.Invoke(starsEarned, completedConditionNames);
+    }
+
+    // Изменения в методе GetMaxStarsEarned()
+    public int GetMaxStarsEarned()
+    {
+        // Изменяем: возвращаем количество выполненных условий вместо максимального значения звезд
+        return completedWinConditions.Count;
     }
 
     // Вызывается при проигрыше
@@ -184,13 +211,6 @@ public class LevelManager : MonoBehaviour
     public List<string> GetCompletedConditionNames()
     {
         return completedWinConditions.Select(c => c.Name).ToList();
-    }
-
-    public int GetMaxStarsEarned()
-    {
-        return completedWinConditions.Count > 0
-            ? completedWinConditions.Max(c => c.Stars)
-            : 0;
     }
 
     public bool IsLevelCompleted()

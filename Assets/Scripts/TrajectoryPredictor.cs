@@ -1,203 +1,251 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
+// Интерфейс для любого типа боеприпаса
+public interface IProjectile
+{
+    Transform GetTransform();
+    bool IsLaunched(); // Добавляем метод для проверки был ли выпущен снаряд
+}
+
+// Универсальный предиктор траектории
 public class TrajectoryPredictor : MonoBehaviour
 {
-    [SerializeField] private int pointsCount = 20; // Количество точек для отображения
-    [SerializeField] private float timeStep = 0.05f; // Временной шаг для симуляции
-    [SerializeField] private GameObject pointPrefab; // Префаб точки траектории
-    [SerializeField] private Transform shootPoint; // Точка выстрела (рогатка)
-    [SerializeField] private float dotScale = 0.5f; // Размер точек
-    [SerializeField] private bool useGradient = true; // Использовать градиент цвета
-    [SerializeField] private Gradient trajectoryGradient; // Градиент для точек траектории
-    [SerializeField] private float dotAlpha = 0.7f; // Прозрачность точек
-    [SerializeField] private float dotPulseSpeed = 1.5f; // Скорость пульсации точек
-    [SerializeField] private float dotPulseAmount = 0.2f; // Величина пульсации
+    [Header("Trajectory Settings")]
+    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private int linePoints = 25;
+    [SerializeField] private float timeStep = 0.05f;
+    [SerializeField] private float maxTime = 5f;
+    [SerializeField] private bool showOnlyWhenDragging = true;
 
-    private List<GameObject> trajectoryPoints = new List<GameObject>();
-    private Rigidbody2D ammoRigidbody;
-    private bool isAiming = false;
-    private float pulseTimer = 0f;
+    [Header("References")]
+    [SerializeField] private GameObject projectileObject;  // Ссылка на объект боеприпаса
+    [SerializeField] private Rigidbody2D slingshotRigidbody;
+    [SerializeField] private float forceMultiplier = 5f;
+
+    // Ссылка на боеприпас через интерфейс
+    private IProjectile projectile;
+    private Transform projectileTransform;
+
+    // Физический движок для симуляции
+    private PhysicsScene2D physicsScene;
+    private GameObject dummyObject;
+    private Rigidbody2D dummyRigidbody;
+
+    // Флаг для отслеживания активности траектории
+    private bool trajectoryActive = false;
+
+    // Флаг, был ли уже выпущен боеприпас
+    private bool projectileLaunched = false;
 
     private void Start()
     {
-        ammoRigidbody = GetComponent<Rigidbody2D>();
-
-        // Если нет ссылки на точку выстрела, попробуем найти её
-        if (shootPoint == null)
+        // Инициализация LineRenderer, если он не назначен
+        if (lineRenderer == null)
         {
-            GameObject slingshot = GameObject.FindGameObjectWithTag("Slingshot");
+            lineRenderer = GetComponent<LineRenderer>();
+            if (lineRenderer == null)
+            {
+                lineRenderer = gameObject.AddComponent<LineRenderer>();
+                SetupLineRenderer();
+            }
+        }
+        else
+        {
+            SetupLineRenderer();
+        }
+
+        // Инициализация проектила
+        InitializeProjectile();
+
+        // Инициализация рогатки, если она не назначена
+        if (slingshotRigidbody == null)
+        {
+            GameObject slingshot = GameObject.FindGameObjectWithTag("FirstSlingshot");
             if (slingshot != null)
             {
-                shootPoint = slingshot.transform;
+                slingshotRigidbody = slingshot.GetComponent<Rigidbody2D>();
             }
         }
 
-        // Создаем точки для траектории
-        CreateTrajectoryPoints();
+        // По умолчанию скрываем траекторию
+        lineRenderer.enabled = false;
 
-        // По умолчанию скрываем точки
-        HideTrajectory();
+        // Создаем фиктивный объект для симуляции
+        CreateDummyObject();
 
-        // Настройка градиента по умолчанию, если он не задан
-        if (trajectoryGradient.colorKeys.Length == 0)
+        // Получаем текущую физическую сцену
+        physicsScene = Physics2D.defaultPhysicsScene;
+    }
+
+    private void InitializeProjectile()
+    {
+        // Проверяем наличие объекта боеприпаса
+        if (projectileObject == null)
         {
-            GradientColorKey[] colorKeys = new GradientColorKey[2];
-            colorKeys[0].color = Color.white;
-            colorKeys[0].time = 0.0f;
-            colorKeys[1].color = Color.red;
-            colorKeys[1].time = 1.0f;
-
-            GradientAlphaKey[] alphaKeys = new GradientAlphaKey[2];
-            alphaKeys[0].alpha = dotAlpha;
-            alphaKeys[0].time = 0.0f;
-            alphaKeys[1].alpha = 0.2f;
-            alphaKeys[1].time = 1.0f;
-
-            trajectoryGradient.SetKeys(colorKeys, alphaKeys);
+            projectileObject = gameObject;
         }
+
+        // Получаем компонент, реализующий интерфейс IProjectile
+        projectile = projectileObject.GetComponent<IProjectile>();
+
+        // Если компонент не реализует интерфейс, пробуем получить Transform напрямую
+        if (projectile == null)
+        {
+            projectileTransform = projectileObject.transform;
+            projectileLaunched = false; // По умолчанию считаем, что не выпущен
+        }
+        else
+        {
+            projectileTransform = projectile.GetTransform();
+            // Проверяем, был ли уже выпущен боеприпас
+            projectileLaunched = projectile.IsLaunched();
+        }
+    }
+
+    private void SetupLineRenderer()
+    {
+        lineRenderer.positionCount = linePoints;
+        lineRenderer.startWidth = 0.2f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.useWorldSpace = true;
+    }
+
+    private void CreateDummyObject()
+    {
+        // Создаем невидимый объект для симуляции траектории
+        dummyObject = new GameObject("TrajectoryDummy");
+        dummyObject.hideFlags = HideFlags.HideInHierarchy;
+
+        // Добавляем компонент Rigidbody2D
+        dummyRigidbody = dummyObject.AddComponent<Rigidbody2D>();
+        dummyRigidbody.gravityScale = 1f;
+        dummyRigidbody.linearDamping = 0f;
+
+        // Добавляем небольшой коллайдер для обнаружения столкновений
+        CircleCollider2D collider = dummyObject.AddComponent<CircleCollider2D>();
+        collider.radius = 0.1f;
+        collider.isTrigger = true;
     }
 
     private void Update()
     {
-        // Если мы прицеливаемся и активирован режим пульсации
-        if (isAiming && dotPulseAmount > 0)
-        {
-            pulseTimer += Time.deltaTime * dotPulseSpeed;
-            float pulseFactor = 1f + Mathf.Sin(pulseTimer) * dotPulseAmount;
-
-            // Применяем пульсацию к точкам
-            for (int i = 0; i < trajectoryPoints.Count; i++)
-            {
-                if (trajectoryPoints[i].activeSelf)
-                {
-                    trajectoryPoints[i].transform.localScale = Vector3.one * dotScale * pulseFactor;
-                }
-            }
-        }
-    }
-
-    private void CreateTrajectoryPoints()
-    {
-        // Если нет префаба точки, создаем простой спрайт
-        if (pointPrefab == null)
-        {
-            // Создаем временный префаб точки
-            GameObject tempPoint = new GameObject("TrajectoryPoint");
-            SpriteRenderer renderer = tempPoint.AddComponent<SpriteRenderer>();
-
-            // Создаем круглый спрайт программно
-            Texture2D texture = new Texture2D(32, 32);
-            for (int y = 0; y < texture.height; y++)
-            {
-                for (int x = 0; x < texture.width; x++)
-                {
-                    float distance = Vector2.Distance(new Vector2(x, y), new Vector2(texture.width / 2, texture.height / 2));
-                    if (distance < texture.width / 2)
-                    {
-                        texture.SetPixel(x, y, Color.white);
-                    }
-                    else
-                    {
-                        texture.SetPixel(x, y, new Color(1, 1, 1, 0));
-                    }
-                }
-            }
-            texture.Apply();
-
-            Sprite circleSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-            renderer.sprite = circleSprite;
-
-            pointPrefab = tempPoint;
-            tempPoint.SetActive(false);
-        }
-
-        // Создаем точки
-        for (int i = 0; i < pointsCount; i++)
-        {
-            GameObject point = Instantiate(pointPrefab);
-            point.transform.localScale = Vector3.one * dotScale;
-            point.SetActive(false);
-
-            SpriteRenderer renderer = point.GetComponent<SpriteRenderer>();
-            if (renderer != null && useGradient)
-            {
-                float gradientPosition = (float)i / pointsCount;
-                renderer.color = trajectoryGradient.Evaluate(gradientPosition);
-            }
-
-            trajectoryPoints.Add(point);
-        }
-    }
-
-    public void ShowTrajectory()
-    {
-        isAiming = true;
-    }
-
-    public void HideTrajectory()
-    {
-        isAiming = false;
-        foreach (GameObject point in trajectoryPoints)
-        {
-            point.SetActive(false);
-        }
-    }
-
-    // Метод для вызова из скриптов боеприпасов
-    public void UpdateTrajectory(Vector2 startPosition, Vector2 startVelocity)
-    {
-        if (!isAiming || ammoRigidbody == null || trajectoryPoints.Count == 0 || shootPoint == null)
+        // Проверяем, что необходимые компоненты существуют и боеприпас не выпущен
+        if (projectileTransform == null || slingshotRigidbody == null)
             return;
 
-        // Если скорость не указана, рассчитываем её на основе расстояния до точки выстрела
-        Vector2 velocity = startVelocity;
-        if (velocity == Vector2.zero)
+        // Обновляем статус снаряда, если у нас есть интерфейс IProjectile
+        if (projectile != null)
         {
-            velocity = (shootPoint.position - transform.position).normalized *
-                      Vector2.Distance(transform.position, shootPoint.position) *
-                      ammoRigidbody.mass * Physics2D.gravity.magnitude * 0.5f;
-
-            velocity = -velocity; // Инвертируем, поскольку оттягиваем в противоположную сторону
+            projectileLaunched = projectile.IsLaunched();
         }
 
-        // Обновляем положение точек на основе физики
-        Vector2 currentPosition = startPosition;
-        Vector2 currentVelocity = velocity;
-
-        for (int i = 0; i < trajectoryPoints.Count; i++)
+        // Если боеприпас уже выпущен, скрываем траекторию и выходим
+        if (projectileLaunched)
         {
-            // Активируем точку
-            trajectoryPoints[i].SetActive(true);
+            lineRenderer.enabled = false;
+            trajectoryActive = false;
+            return;
+        }
 
-            // Симулируем физику для текущего шага времени
-            float timeOffset = timeStep * i;
-            Vector2 gravityEffect = Physics2D.gravity * ammoRigidbody.gravityScale * timeOffset * timeOffset * 0.5f;
+        // Проверяем, нажата ли кнопка мыши или есть касание
+        bool isPressed = Input.GetMouseButton(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled);
 
-            // Рассчитываем позицию на основе начальной скорости и гравитации
-            Vector2 predictedPosition = currentPosition + currentVelocity * timeOffset + gravityEffect;
+        // Определяем, является ли текущий боеприпас активным (нажатым)
+        bool isCurrentProjectileActive = false;
 
-            // Устанавливаем позицию точки
-            trajectoryPoints[i].transform.position = predictedPosition;
-
-            // Проверяем столкновение с окружением
-            RaycastHit2D hit = Physics2D.Linecast(currentPosition, predictedPosition);
-            if (hit.collider != null && hit.collider.gameObject != gameObject)
+        if (projectile is MonoBehaviour monoBehaviour)
+        {
+            MolotovAmmunition molotov = monoBehaviour as MolotovAmmunition;
+            ArrowAmmunition arrow = monoBehaviour as ArrowAmmunition;
+            if (arrow != null)
             {
-                // Если обнаружено столкновение, прерываем траекторию
-                trajectoryPoints[i].transform.position = hit.point;
-
-                // Делаем невидимыми все последующие точки
-                for (int j = i + 1; j < trajectoryPoints.Count; j++)
-                {
-                    trajectoryPoints[j].SetActive(false);
-                }
-
-                break;
+                isCurrentProjectileActive = arrow.IsPressed();
             }
+            if (molotov != null)
+            {
+                isCurrentProjectileActive = molotov.IsPressed();
+            }
+        }
 
-            currentPosition = predictedPosition;
+        // Показываем траекторию только если текущий боеприпас активен и нажат
+        if (isPressed && isCurrentProjectileActive)
+        {
+            // Получаем направление и силу броска
+            Vector2 direction = (Vector2)slingshotRigidbody.position - (Vector2)projectileTransform.position;
+            Vector2 force = direction * forceMultiplier;
+
+            // Показываем траекторию
+            lineRenderer.enabled = true;
+            trajectoryActive = true;
+            PredictTrajectory(projectileTransform.position, force);
+        }
+        else if (showOnlyWhenDragging || !isCurrentProjectileActive)
+        {
+            // Скрываем траекторию, если не натягиваем текущий боеприпас
+            lineRenderer.enabled = false;
+            trajectoryActive = false;
+        }
+    }
+
+    private void PredictTrajectory(Vector3 startPos, Vector2 force)
+    {
+        // Устанавливаем начальную позицию фиктивного объекта
+        dummyObject.transform.position = startPos;
+        dummyRigidbody.linearVelocity = Vector2.zero;
+
+        // Симулируем применение силы
+        Vector2 velocity = force / dummyRigidbody.mass;
+
+        // Заполняем первую точку траектории
+        lineRenderer.SetPosition(0, startPos);
+
+        // Моделируем траекторию по времени
+        float timeElapsed = 0f;
+        Vector2 currentPosition = startPos;
+
+        for (int i = 1; i < linePoints; i++)
+        {
+            // Увеличиваем время
+            timeElapsed += timeStep;
+
+            if (timeElapsed > maxTime)
+                break;
+
+            // Вычисляем новую позицию с учетом гравитации и начальной скорости
+            // s = ut + 0.5 * a * t^2
+            currentPosition = (Vector2)startPos + velocity * timeElapsed + 0.5f * Physics2D.gravity * timeElapsed * timeElapsed;
+
+            // Задаем позицию в LineRenderer
+            lineRenderer.SetPosition(i, currentPosition);
+        }
+
+        // Если точек осталось меньше максимального количества, устанавливаем оставшиеся в последнюю позицию
+        for (int i = Mathf.CeilToInt(timeElapsed / timeStep) + 1; i < linePoints; i++)
+        {
+            lineRenderer.SetPosition(i, currentPosition);
+        }
+    }
+
+    // Метод для обновления ссылки на боеприпас
+    public void SetProjectile(GameObject newProjectile)
+    {
+        projectileObject = newProjectile;
+        InitializeProjectile();
+    }
+
+    // Метод для внешней проверки активности траектории
+    public bool IsTrajectoryActive()
+    {
+        return trajectoryActive;
+    }
+
+    private void OnDestroy()
+    {
+        // Очистка ресурсов
+        if (dummyObject != null)
+        {
+            Destroy(dummyObject);
         }
     }
 }

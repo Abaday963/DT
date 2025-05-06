@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MolotovAmmunition : MonoBehaviour, IAmmunition
+public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
 {
     [SerializeField] private Rigidbody2D ammoRigidbody;
     [SerializeField] private bool isPressed = false;
     [SerializeField] private float maxDistance = 3f;
     [SerializeField] private Rigidbody2D shootRigid; // Ссылка на рогатку
+
 
     // Компоненты взрыва
     [SerializeField] private GameObject explosionPrefab;
@@ -305,5 +306,17 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition
                 Destroy(shard, fireShardLifetime);
             }
         }
+    }
+    public Transform GetTransform()
+    {
+        return transform;
+    }
+    public bool IsLaunched()
+    {
+        return isLaunched;
+    }
+    public bool IsPressed()
+    {
+        return isPressed;
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ArrowAmmunition : MonoBehaviour, IAmmunition
+public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
 {
     [SerializeField] private bool isPressed = false;
     [SerializeField] private float maxDistance = 3f;
@@ -76,7 +76,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
     private void Update()
     {
         // Обработка PC ввода
-        if (Input.GetMouseButtonDown(0) && !isPressed)
+        if (Input.GetMouseButtonDown(0) && !isPressed && !wasLaunched)
         {
             CheckTouch(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         }
@@ -91,7 +91,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
         {
             Touch touch = Input.GetTouch(0);
 
-            if (touch.phase == TouchPhase.Began && !isPressed)
+            if (touch.phase == TouchPhase.Began && !isPressed && !wasLaunched)
             {
                 CheckTouch(Camera.main.ScreenToWorldPoint(touch.position));
             }
@@ -151,7 +151,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
     {
         Collider2D hit = Physics2D.OverlapPoint(touchPos);
 
-        if (hit != null && hit.gameObject == gameObject)
+        if (hit != null && hit.gameObject == gameObject && !wasLaunched)
         {
             isPressed = true;
             arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
@@ -169,46 +169,20 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
         float distance = Vector2.Distance(arrowRigidbody.position, shootRigid.position);
         float forceMagnitude = distance * launchForce;
 
+        // Отмечаем, что стрела выпущена до вызова метода Launch
+        wasLaunched = true;
+
         // Вызываем метод интерфейса IAmmunition
         Launch(releaseDirection * forceMagnitude);
     }
 
-    private IEnumerator LaunchWithForce(float force)
-    {
-        // Удаляем пружинное соединение
-        SpringJoint2D springJoint = GetComponent<SpringJoint2D>();
-        if (springJoint != null)
-        {
-            springJoint.enabled = false;
-            Destroy(springJoint);
-        }
-
-        // Теперь стрела выстрелилась, можно обрабатывать столкновения
-        wasLaunched = true;
-
-        // Отключаем триггер, чтобы стрела могла нормально сталкиваться
-        if (arrowCollider != null)
-        {
-            arrowCollider.isTrigger = false;
-        }
-
-        // Применяем силу - БЕЗ знака минус!
-        arrowRigidbody.AddForce(releaseDirection * force, ForceMode2D.Impulse);
-
-        this.enabled = false;
-
-        yield return new WaitForSeconds(2);
-
-        // Создаем новый снаряд
-        SpawnNewAmmo();
-
-        Destroy(gameObject, 5);
-    }
-
     private void OnMouseDown()
     {
-        isPressed = true;
-        arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
+        if (!wasLaunched)
+        {
+            isPressed = true;
+            arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
+        }
     }
 
     private void OnMouseUp()
@@ -272,7 +246,8 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
             }
         }
         // Вызываем метод интерфейса IAmmunition
-        OnImpact();
+        if (collision.gameObject.layer == molotovLayer)
+            OnImpact();
     }
 
     public void Launch(Vector2 force)
@@ -296,6 +271,8 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
 
         // Применяем силу
         arrowRigidbody.AddForce(force, ForceMode2D.Impulse);
+
+        // После запуска отключаем скрипт для взаимодействия
         this.enabled = false;
 
         // Запускаем корутину для создания нового снаряда
@@ -330,5 +307,23 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition
                 }
             }
         }
+    }
+
+    // Реализация метода из интерфейса IProjectile
+    public Transform GetTransform()
+    {
+        return transform;
+    }
+
+    // Реализация нового метода из интерфейса IProjectile
+    public bool IsLaunched()
+    {
+        return wasLaunched;
+    }
+
+    // Метод для доступа к состоянию нажатия стрелы
+    public bool IsPressed()
+    {
+        return isPressed;
     }
 }

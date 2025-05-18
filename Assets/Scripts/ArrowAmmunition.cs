@@ -220,6 +220,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
     private IEnumerator ReloadScene()
     {
+        Debug.Log("эо ес че арроу");
         yield return new WaitForSeconds(1);
         SceneManager.LoadScene(0);
     }
@@ -236,6 +237,10 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
         Debug.Log("Стрела попала !!!!!!!!!");
 
+        // Проверяем, имеет ли объект компонент IAmmunition
+        IAmmunition target = collision.gameObject.GetComponent<IAmmunition>();
+
+        // Проверка на попадание в молотов
         if (((1 << collision.gameObject.layer) & molotovLayer) != 0)
         {
             Debug.Log("Стрела попала в молотов!");
@@ -245,9 +250,29 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
                 arrowHitCondition.OnArrowHitMolotov();
             }
         }
-        // Вызываем метод интерфейса IAmmunition
-        if (collision.gameObject.layer == molotovLayer)
+
+        // Если объект не реализует IAmmunition, застреваем в нем
+        if (target == null)
+        {
+            // Застреваем в объекте
+            StickToObject(collision);
+        }
+        else
+        {
+            // Если попали в объект IAmmunition, вызываем OnImpact() без застревания
             OnImpact();
+        }
+    }
+
+    // Новый метод для застревания стрелы в объектах
+    private void StickToObject(Collision2D collision)
+    {
+        // Остановка движения стрелы при столкновении
+        arrowRigidbody.linearVelocity = Vector2.zero;
+        arrowRigidbody.angularVelocity = 0f;
+        arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
+
+        Debug.Log("Стрела застряла в объекте: " + collision.gameObject.name);
     }
 
     public void Launch(Vector2 force)
@@ -294,19 +319,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
         arrowRigidbody.angularVelocity = 0f;
         arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
 
-        // Прикрепляем стрелу к объекту, в который она попала
-        if (transform.parent == null) // Только если еще не прикреплена
-        {
-            Collider2D[] colliders = Physics2D.OverlapPointAll(transform.position);
-            foreach (Collider2D col in colliders)
-            {
-                if (col.gameObject != gameObject)
-                {
-                    transform.parent = col.transform;
-                    break;
-                }
-            }
-        }
+        // Примечание: Мы не прикрепляем стрелу к объекту IAmmunition
     }
 
     // Реализация метода из интерфейса IProjectile

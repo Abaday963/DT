@@ -32,7 +32,7 @@ public class ArrowHitMolotovCondition : WinCondition
                     conditionCompleted = true;
                     if (GameManager.Instance != null)
                     {
-                        Debug.Log("Стрела попала в молотов, но здание ЗАГОРЕЛОС И ТРОЙНОЙ МАТЬ ЕГО УДАР");
+                        //Debug.Log("Стрела попала в молотов, но здание ЗАГОРЕЛОС И ТРОЙНОЙ МАТЬ ЕГО УДАР");
                         GameManager.Instance.LevelManager.CheckWinConditions();
                     }
                 }
@@ -42,7 +42,7 @@ public class ArrowHitMolotovCondition : WinCondition
                 // Если прошло CHECK_DURATION секунд, а здание не загорелось - сбрасываем попадание
                 arrowHitMolotov = false;
                 checkTimer = 0f;
-                Debug.Log("Стрела попала в молотов, но здание не загорелось в течение указанного времени");
+                //Debug.Log("Стрела попала в молотов, но здание не загорелось в течение указанного времени");
             }
         }
     }

@@ -227,7 +227,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"GameManager: Найдены ссылки - WinPanel: {winPanel != null}, LosePanel: {losePanel != null}, NextLevelButton: {nextLevelButton != null}, MainMenuButton: {mainMenuButton != null}, Звезды: {starIcons?.Length ?? 0}");
+        //Debug.Log($"GameManager: Найдены ссылки - WinPanel: {winPanel != null}, LosePanel: {losePanel != null}, NextLevelButton: {nextLevelButton != null}, MainMenuButton: {mainMenuButton != null}, Звезды: {starIcons?.Length ?? 0}");
     }
 
     private void SubscribeToLevelManager()
@@ -236,11 +236,11 @@ public class GameManager : MonoBehaviour
         {
             levelManager.OnLevelWon += HandleLevelWon;
             levelManager.OnLevelLost += HandleLevelLost;
-            Debug.Log("GameManager: Подписка на события LevelManager выполнена");
+            //Debug.Log("GameManager: Подписка на события LevelManager выполнена");
         }
         else
         {
-            Debug.LogWarning("GameManager: LevelManager не найден, подписка на события невозможна");
+            //Debug.LogWarning("GameManager: LevelManager не найден, подписка на события невозможна");
         }
     }
 
@@ -250,7 +250,7 @@ public class GameManager : MonoBehaviour
         {
             levelManager.OnLevelWon -= HandleLevelWon;
             levelManager.OnLevelLost -= HandleLevelLost;
-            Debug.Log("GameManager: Отписка от событий LevelManager выполнена");
+            //Debug.Log("GameManager: Отписка от событий LevelManager выполнена");
         }
     }
 
@@ -261,11 +261,11 @@ public class GameManager : MonoBehaviour
             uiRootBinder.GoToMainMenuButtonClicked += LoadMainMenu;
             uiRootBinder.NextLevelButtonClicked += LoadNextLevel;
             uiRootBinder.RestartLevelButtonClicked += RestartLevel;
-            Debug.Log("GameManager: Подписка на события UIGameplayRootBinder выполнена");
+            //Debug.Log("GameManager: Подписка на события UIGameplayRootBinder выполнена");
         }
         else
         {
-            Debug.LogWarning("GameManager: UIGameplayRootBinder не найден, подписка на события невозможна");
+            //Debug.LogWarning("GameManager: UIGameplayRootBinder не найден, подписка на события невозможна");
         }
 
         if (gameplayEntryPoint != null)
@@ -273,11 +273,11 @@ public class GameManager : MonoBehaviour
             gameplayEntryPoint.GoToMainMainMenuRequested += LoadMainMenu;
             gameplayEntryPoint.GoToNextLevelRequested += LoadNextLevel;
             gameplayEntryPoint.RestartLevelRequested += RestartLevel;
-            Debug.Log("GameManager: Подписка на события GameplayEntryPoint выполнена");
+            //Debug.Log("GameManager: Подписка на события GameplayEntryPoint выполнена");
         }
         else
         {
-            Debug.LogWarning("GameManager: GameplayEntryPoint не найден, подписка на события невозможна");
+            //Debug.LogWarning("GameManager: GameplayEntryPoint не найден, подписка на события невозможна");
         }
     }
 
@@ -288,7 +288,7 @@ public class GameManager : MonoBehaviour
             uiRootBinder.GoToMainMenuButtonClicked -= LoadMainMenu;
             uiRootBinder.NextLevelButtonClicked -= LoadNextLevel;
             uiRootBinder.RestartLevelButtonClicked -= RestartLevel;
-            Debug.Log("GameManager: Отписка от событий UIGameplayRootBinder выполнена");
+            //Debug.Log("GameManager: Отписка от событий UIGameplayRootBinder выполнена");
         }
 
         if (gameplayEntryPoint != null)
@@ -296,7 +296,7 @@ public class GameManager : MonoBehaviour
             gameplayEntryPoint.GoToMainMainMenuRequested -= LoadMainMenu;
             gameplayEntryPoint.GoToNextLevelRequested -= LoadNextLevel;
             gameplayEntryPoint.RestartLevelRequested -= RestartLevel;
-            Debug.Log("GameManager: Отписка от событий GameplayEntryPoint выполнена");
+            //Debug.Log("GameManager: Отписка от событий GameplayEntryPoint выполнена");
         }
     }
 

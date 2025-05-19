@@ -164,6 +164,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1471978754 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2153918317992531153, guid: d2194fb2d9b718742a62a2fa096905dd, type: 3}
+  m_PrefabInstance: {fileID: 1645909181}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1485007953
 GameObject:
   m_ObjectHideFlags: 0
@@ -392,6 +397,26 @@ PrefabInstance:
     - target: {fileID: 2153918317992531153, guid: d2194fb2d9b718742a62a2fa096905dd, type: 3}
       propertyPath: m_Name
       value: MainMenuUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 5642335982284617031, guid: d2194fb2d9b718742a62a2fa096905dd, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5642335982284617031, guid: d2194fb2d9b718742a62a2fa096905dd, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5642335982284617031, guid: d2194fb2d9b718742a62a2fa096905dd, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1471978754}
+    - target: {fileID: 5642335982284617031, guid: d2194fb2d9b718742a62a2fa096905dd, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5642335982284617031, guid: d2194fb2d9b718742a62a2fa096905dd, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: UIMainMenuRootBinder, Assembly-CSharp
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

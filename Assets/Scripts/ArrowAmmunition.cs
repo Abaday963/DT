@@ -235,7 +235,6 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
             return;
         }
 
-        Debug.Log("Стрела попала !!!!!!!!!");
 
         // Проверяем, имеет ли объект компонент IAmmunition
         IAmmunition target = collision.gameObject.GetComponent<IAmmunition>();
@@ -306,7 +305,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
     private IEnumerator DelayedSpawn()
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(0.5f);
         SpawnNewAmmo();
         Destroy(gameObject, 5);
     }

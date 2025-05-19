@@ -18,6 +18,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject restartButton;
     [SerializeField] private Text starsText;
 
+    // Ссылки на UI элементы для навигации
+    [SerializeField] private GameObject nextLevelButton;
+    [SerializeField] private GameObject mainMenuButton;
+
+    // Ссылки на компоненты UI системы
+    private UIGameplayRootBinder uiRootBinder;
+    private GameplayEntryPoint gameplayEntryPoint;
+
     // Ссылки на иконки звезд
     [SerializeField] private GameObject[] starIcons;
 
@@ -44,7 +52,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+        currentLevelIndex = SceneManager.GetActiveScene().buildIndex-1;
     }
 
     private void Start()
@@ -66,6 +74,9 @@ public class GameManager : MonoBehaviour
 
         // Отписываемся от событий LevelManager, если он существует
         UnsubscribeFromLevelManager();
+
+        // Отписываемся от событий UIGameplayRootBinder
+        UnsubscribeFromUIRootBinder();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -89,12 +100,16 @@ public class GameManager : MonoBehaviour
     {
         // Отписываемся от старых событий, если были
         UnsubscribeFromLevelManager();
+        UnsubscribeFromUIRootBinder();
 
         // Находим необходимые объекты напрямую через FindObjectOfType
         FindReferences();
 
         // Подписываемся на события LevelManager
         SubscribeToLevelManager();
+
+        // Подписываемся на события UIGameplayRootBinder
+        SubscribeToUIRootBinder();
 
         // Сбрасываем состояние игры
         ResetGameState();
@@ -107,6 +122,10 @@ public class GameManager : MonoBehaviour
         {
             levelManager = FindObjectOfType<LevelManager>();
         }
+
+        // Находим UIGameplayRootBinder и GameplayEntryPoint
+        uiRootBinder = FindObjectOfType<UIGameplayRootBinder>();
+        gameplayEntryPoint = FindObjectOfType<GameplayEntryPoint>();
 
         // Находим UI элементы напрямую через GetComponentsInChildren или FindObjectsOfType
         // вместо использования тегов
@@ -151,6 +170,33 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // Находим кнопки навигации, если они не назначены через инспектор
+        if (nextLevelButton == null)
+        {
+            Button[] allButtons = FindObjectsOfType<Button>();
+            foreach (Button b in allButtons)
+            {
+                if (b.gameObject.name.Contains("NextLevelButton"))
+                {
+                    nextLevelButton = b.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (mainMenuButton == null)
+        {
+            Button[] allButtons = FindObjectsOfType<Button>();
+            foreach (Button b in allButtons)
+            {
+                if (b.gameObject.name.Contains("MainMenuButton"))
+                {
+                    mainMenuButton = b.gameObject;
+                    break;
+                }
+            }
+        }
+
         // Находим иконки звезд
         List<GameObject> foundStars = new List<GameObject>();
         Transform[] transforms = FindObjectsOfType<Transform>();
@@ -181,7 +227,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"GameManager: Найдены ссылки - WinPanel: {winPanel != null}, LosePanel: {losePanel != null}, Звезды: {starIcons?.Length ?? 0}");
+        Debug.Log($"GameManager: Найдены ссылки - WinPanel: {winPanel != null}, LosePanel: {losePanel != null}, NextLevelButton: {nextLevelButton != null}, MainMenuButton: {mainMenuButton != null}, Звезды: {starIcons?.Length ?? 0}");
     }
 
     private void SubscribeToLevelManager()
@@ -208,11 +254,61 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void SubscribeToUIRootBinder()
+    {
+        if (uiRootBinder != null)
+        {
+            uiRootBinder.GoToMainMenuButtonClicked += LoadMainMenu;
+            uiRootBinder.NextLevelButtonClicked += LoadNextLevel;
+            uiRootBinder.RestartLevelButtonClicked += RestartLevel;
+            Debug.Log("GameManager: Подписка на события UIGameplayRootBinder выполнена");
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: UIGameplayRootBinder не найден, подписка на события невозможна");
+        }
+
+        if (gameplayEntryPoint != null)
+        {
+            gameplayEntryPoint.GoToMainMainMenuRequested += LoadMainMenu;
+            gameplayEntryPoint.GoToNextLevelRequested += LoadNextLevel;
+            gameplayEntryPoint.RestartLevelRequested += RestartLevel;
+            Debug.Log("GameManager: Подписка на события GameplayEntryPoint выполнена");
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: GameplayEntryPoint не найден, подписка на события невозможна");
+        }
+    }
+
+    private void UnsubscribeFromUIRootBinder()
+    {
+        if (uiRootBinder != null)
+        {
+            uiRootBinder.GoToMainMenuButtonClicked -= LoadMainMenu;
+            uiRootBinder.NextLevelButtonClicked -= LoadNextLevel;
+            uiRootBinder.RestartLevelButtonClicked -= RestartLevel;
+            Debug.Log("GameManager: Отписка от событий UIGameplayRootBinder выполнена");
+        }
+
+        if (gameplayEntryPoint != null)
+        {
+            gameplayEntryPoint.GoToMainMainMenuRequested -= LoadMainMenu;
+            gameplayEntryPoint.GoToNextLevelRequested -= LoadNextLevel;
+            gameplayEntryPoint.RestartLevelRequested -= RestartLevel;
+            Debug.Log("GameManager: Отписка от событий GameplayEntryPoint выполнена");
+        }
+    }
+
     public void ResetGameState()
     {
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
         if (restartButton != null) restartButton.SetActive(false);
+
+        // Скрываем кнопки навигации при сбросе
+        if (nextLevelButton != null) nextLevelButton.SetActive(false);
+        if (mainMenuButton != null) mainMenuButton.SetActive(false);
 
         // Скрываем все звезды при сбросе
         HideAllStars();
@@ -280,13 +376,65 @@ public class GameManager : MonoBehaviour
         else
             Debug.LogWarning("GameManager: RestartButton не найден");
 
+        // Проверяем, есть ли следующий уровень
+        bool hasNextLevel = HasNextLevel();
+
+        // Показываем кнопки навигации при победе
+        if (nextLevelButton != null)
+        {
+            // Показываем кнопку следующего уровня только если есть следующий уровень
+            nextLevelButton.SetActive(hasNextLevel);
+            if (hasNextLevel)
+                Debug.Log("GameManager: NextLevelButton активирован");
+            else
+                Debug.Log("GameManager: NextLevelButton скрыт (нет следующего уровня)");
+        }
+        else
+            Debug.LogWarning("GameManager: NextLevelButton не найден");
+
+        // Кнопка главного меню показывается всегда
+        if (mainMenuButton != null)
+        {
+            mainMenuButton.SetActive(true);
+            Debug.Log("GameManager: MainMenuButton активирован");
+        }
+        else
+            Debug.LogWarning("GameManager: MainMenuButton не найден");
+
+        // Активируем кнопки через UIRootBinder, если он доступен
+        if (uiRootBinder != null)
+        {
+            if (uiRootBinder._nextLevelButton != null)
+            {
+                // Показываем кнопку следующего уровня только если есть следующий уровень
+                uiRootBinder._nextLevelButton.SetActive(hasNextLevel);
+                if (hasNextLevel)
+                    Debug.Log("GameManager: UIRootBinder NextLevelButton активирован");
+                else
+                    Debug.Log("GameManager: UIRootBinder NextLevelButton скрыт (нет следующего уровня)");
+            }
+
+            if (uiRootBinder._mainMenuButton != null)
+            {
+                uiRootBinder._mainMenuButton.SetActive(true);
+                Debug.Log("GameManager: UIRootBinder MainMenuButton активирован");
+            }
+        }
+
         // Отображаем заработанные звезды
         ShowStars(stars);
+
+        // Если это последний уровень и нажата кнопка "Следующий уровень",
+        // автоматически загружаем главное меню через некоторое время
+        if (!hasNextLevel)
+        {
+            Debug.Log("Это последний уровень. При нажатии 'Следующий уровень' будет переход в главное меню.");
+        }
     }
 
     private void HandleLevelLost(int stars, List<string> loseReasons)
     {
-        Debug.Log($"Уровень проигран! Причины: {string.Join(", ", loseReasons)}");
+        //Debug.Log($"Уровень проигран! Причины: {string.Join(", ", loseReasons)}");
 
         // Показываем панель проигрыша
         if (losePanel != null)
@@ -295,10 +443,24 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("GameManager: LosePanel не найден");
 
         // Показываем кнопку перезапуска
-        if (restartButton != null)
-            restartButton.SetActive(true);
-        else
-            Debug.LogWarning("GameManager: RestartButton не найден");
+        //if (restartButton != null)
+        //    restartButton.SetActive(true);
+        //else
+        //    Debug.LogWarning("GameManager: RestartButton не найден");
+
+        // Прячем кнопки навигации при проигрыше
+        if (nextLevelButton != null) nextLevelButton.SetActive(false);
+        if (mainMenuButton != null) mainMenuButton.SetActive(false);
+
+        // Деактивируем кнопки через UIRootBinder, если он доступен
+        if (uiRootBinder != null)
+        {
+            if (uiRootBinder._nextLevelButton != null)
+                uiRootBinder._nextLevelButton.SetActive(false);
+
+            if (uiRootBinder._mainMenuButton != null)
+                uiRootBinder._mainMenuButton.SetActive(false);
+        }
 
         // Скрываем все звезды при проигрыше
         HideAllStars();
@@ -345,6 +507,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Проверяет, есть ли следующий уровень
+    public bool HasNextLevel()
+    {
+        int nextLevelIndex = currentLevelIndex + 1;
+        return nextLevelIndex < SceneManager.sceneCountInBuildSettings;
+    }
+
     public void LoadMainMenu()
     {
         StopAllCoroutines();
@@ -382,6 +551,9 @@ public class GameManager : MonoBehaviour
         GUILayout.Label($"Найдено звезд: {starIcons?.Length ?? 0}");
         GUILayout.Label($"WinPanel: {winPanel != null}");
         GUILayout.Label($"LosePanel: {losePanel != null}");
+        GUILayout.Label($"NextLevelButton: {nextLevelButton != null}");
+        GUILayout.Label($"MainMenuButton: {mainMenuButton != null}");
+        GUILayout.Label($"UIRootBinder: {uiRootBinder != null}");
 
         GUILayout.EndArea();
     }

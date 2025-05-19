@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+using UnityEngine.Rendering;
 
 public class LevelManager : MonoBehaviour
 {
@@ -158,11 +159,11 @@ public class LevelManager : MonoBehaviour
                 }
 
                 //// Если это попадание в мишень и у нас соответствующий режим, берем звезды из условия
-                //if (starCountMode == StarCountMode.ByTargetHit && condition is TargetHitCondition)
-                //{
-                //    actualWeightedStarValue = ((TargetHitCondition)condition).GetStarsEarned();
-                //    Debug.Log($"Попадание в мишень! Получено {actualWeightedStarValue} звезд.");
-                //}
+                if (starCountMode == StarCountMode.ByTargetHit && condition is TargetHitCondition)
+                {
+                    actualWeightedStarValue = ((TargetHitCondition)condition).GetStarsEarned();
+                    Debug.Log($"Попадание в мишень! Получено {actualWeightedStarValue} звезд.");
+                }
             }
         }
 
@@ -270,6 +271,7 @@ public class LevelManager : MonoBehaviour
     // Метод для окончательного завершения уровня с победой
     private void CompleteWinLevel()
     {
+        Debug.Log("asssssssssssssssssss2");
         if (isLevelCompleted) return;
 
         isLevelCompleted = true;

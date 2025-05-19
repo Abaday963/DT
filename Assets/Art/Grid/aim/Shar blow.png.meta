@@ -1,0 +1,371 @@
+fileFormatVersion: 2
+guid: dbc4cb52e47536c438fab5c8e2fb73dd
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 967469027503515605
+    second: Shar blow_0
+  - first:
+      213: -1520294780642835546
+    second: Shar blow_1
+  - first:
+      213: 7012289979637154973
+    second: Shar blow_2
+  - first:
+      213: -4757010789789040106
+    second: Shar blow_3
+  - first:
+      213: -8034359597308148536
+    second: Shar blow_4
+  - first:
+      213: -6280159025441203515
+    second: Shar blow_5
+  - first:
+      213: -3002263179963799112
+    second: Shar blow_6
+  - first:
+      213: -8317797782459201180
+    second: Shar blow_7
+  - first:
+      213: 5209374909538895181
+    second: Shar blow_8
+  - first:
+      213: -7639795282649343639
+    second: Shar blow_9
+  - first:
+      213: 4509620372781819243
+    second: Shar blow_10
+  - first:
+      213: -3062180726459669227
+    second: Shar blow_11
+  - first:
+      213: 1845630283677094002
+    second: Shar blow_12
+  - first:
+      213: 4783433913365091794
+    second: Shar blow_13
+  - first:
+      213: 52658930852248811
+    second: Shar blow_14
+  - first:
+      213: 4609250402525341213
+    second: Shar blow_15
+  - first:
+      213: -722636074152973867
+    second: Shar blow_16
+  - first:
+      213: 5843823051101532050
+    second: Shar blow_17
+  - first:
+      213: 6666943006172134082
+    second: Shar blow_18
+  - first:
+      213: -3612992361309254617
+    second: Shar blow_19
+  - first:
+      213: -8530955024362096458
+    second: Shar blow_20
+  - first:
+      213: 9212314069855596645
+    second: Shar blow_21
+  - first:
+      213: 1404232284781861017
+    second: Shar blow_22
+  - first:
+      213: -4242980083006886230
+    second: Shar blow_23
+  - first:
+      213: 4597422967531808987
+    second: Shar blow_24
+  - first:
+      213: -6756013654796115539
+    second: Shar blow_25
+  - first:
+      213: -2200503375684317193
+    second: Shar blow_26
+  - first:
+      213: -776585771350684158
+    second: Shar blow_27
+  - first:
+      213: 6292786636918245075
+    second: Shar blow_28
+  - first:
+      213: -4171533970248265594
+    second: Shar blow_29
+  - first:
+      213: -7840559437677818661
+    second: Shar blow_30
+  - first:
+      213: -3739826226457165461
+    second: Shar blow_31
+  - first:
+      213: -5620841257745701931
+    second: Shar blow_32
+  - first:
+      213: -2971367429003621595
+    second: Shar blow_33
+  - first:
+      213: -6959897201041496119
+    second: Shar blow_34
+  - first:
+      213: -2559551286824423716
+    second: Shar blow_35
+  - first:
+      213: -4353134814820206464
+    second: Shar blow_36
+  - first:
+      213: -6884912976095639617
+    second: Shar blow_37
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Shar blow_3
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 298
+        width: 38
+        height: 79
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6128ce1f3e3bbfdb0800000000000000
+      internalID: -4757010789789040106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Shar blow_0
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 299
+        width: 55
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 44e4ef3b41bc5b846a51b102cb24d224
+      internalID: 967469027503515605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Shar blow_1
+      rect:
+        serializedVersion: 2
+        x: 1519
+        y: 299
+        width: 82
+        height: 94
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b7a11141b7b71be44b5d862b15f5fb6d
+      internalID: -1520294780642835546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Shar blow_2
+      rect:
+        serializedVersion: 2
+        x: 2165
+        y: 298
+        width: 56
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9028ec4e4384c0c42a1bbc7e0fed5728
+      internalID: 7012289979637154973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 100063e38ec26bb4a8ef1a036ba0f1c0
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Shar blow_0: 967469027503515605
+      Shar blow_1: -1520294780642835546
+      Shar blow_10: 4509620372781819243
+      Shar blow_11: -3062180726459669227
+      Shar blow_12: 1845630283677094002
+      Shar blow_13: 4783433913365091794
+      Shar blow_14: 52658930852248811
+      Shar blow_15: 4609250402525341213
+      Shar blow_16: -722636074152973867
+      Shar blow_17: 5843823051101532050
+      Shar blow_18: 6666943006172134082
+      Shar blow_19: -3612992361309254617
+      Shar blow_2: 7012289979637154973
+      Shar blow_20: -8530955024362096458
+      Shar blow_21: 9212314069855596645
+      Shar blow_22: 1404232284781861017
+      Shar blow_23: -4242980083006886230
+      Shar blow_24: 4597422967531808987
+      Shar blow_25: -6756013654796115539
+      Shar blow_26: -2200503375684317193
+      Shar blow_27: -776585771350684158
+      Shar blow_28: 6292786636918245075
+      Shar blow_29: -4171533970248265594
+      Shar blow_3: -4757010789789040106
+      Shar blow_30: -7840559437677818661
+      Shar blow_31: -3739826226457165461
+      Shar blow_32: -5620841257745701931
+      Shar blow_33: -2971367429003621595
+      Shar blow_34: -6959897201041496119
+      Shar blow_35: -2559551286824423716
+      Shar blow_36: -4353134814820206464
+      Shar blow_37: -6884912976095639617
+      Shar blow_38: -78862039
+      Shar blow_4: -8034359597308148536
+      Shar blow_5: -6280159025441203515
+      Shar blow_6: -3002263179963799112
+      Shar blow_7: -8317797782459201180
+      Shar blow_8: 5209374909538895181
+      Shar blow_9: -7639795282649343639
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

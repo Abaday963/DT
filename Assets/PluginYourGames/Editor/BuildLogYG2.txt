@@ -1,0 +1,3 @@
+Build path: C:/GameDev/Builds/Build2
+Build number: 1
+PluginYG version: 2.0032

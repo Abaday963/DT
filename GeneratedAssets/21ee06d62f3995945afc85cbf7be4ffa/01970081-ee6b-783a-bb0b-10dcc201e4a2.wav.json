@@ -1,0 +1,11 @@
+{
+    "asset": "21ee06d62f3995945afc85cbf7be4ffa",
+    "fileName": "01970081-ee6b-783a-bb0b-10dcc201e4a2.wav",
+    "prompt": "The sound of an exploding Molotov cocktail",
+    "negativePrompt": "",
+    "model": "0ee39b33-2893-4e0f-8c46-0e0bdd4eda85",
+    "customSeed": -1,
+    "duration": 1.0,
+    "autoTrim": true,
+    "hasReference": false
+}

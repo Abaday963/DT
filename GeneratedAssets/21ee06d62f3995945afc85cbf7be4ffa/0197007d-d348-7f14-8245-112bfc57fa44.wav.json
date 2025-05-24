@@ -1,0 +1,11 @@
+{
+    "asset": "21ee06d62f3995945afc85cbf7be4ffa",
+    "fileName": "0197007d-d348-7f14-8245-112bfc57fa44.wav",
+    "prompt": "The sound of a bow string being pulled",
+    "negativePrompt": "",
+    "model": "0ee39b33-2893-4e0f-8c46-0e0bdd4eda85",
+    "customSeed": -1,
+    "duration": 2.0,
+    "autoTrim": true,
+    "hasReference": false
+}

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
+public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
 {
     [SerializeField] private Rigidbody2D ammoRigidbody;
     [SerializeField] private bool isPressed = false;
@@ -25,6 +25,13 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
     // Аниматор для переключения анимаций
     //[SerializeField] private Animator animator;
 
+    [Header("Аудио")]
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip explosionSound;
+    [SerializeField] private AudioClip releaseSound; // Звук при отпускании
+    [SerializeField] private AudioClip flyingSound; // Звук через полсекунды после запуска
+
+
     private bool hasExploded = false; // Флаг для отслеживания взрыва
     private bool isLaunched = false; // Флаг для отслеживания запуска
 
@@ -35,6 +42,12 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
     {
         ammoRigidbody = GetComponent<Rigidbody2D>();
 
+        // Получаем или добавляем компонент AudioSource
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
         //if (animator == null)
         //{
         //    animator = GetComponent<Animator>();
@@ -173,7 +186,6 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
             ReleaseAmmo();
         }
     }
-
     private IEnumerator Release()
     {
         yield return new WaitForSeconds(0.1f);
@@ -184,9 +196,21 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
             springJoint.enabled = false;
         }
 
-        isLaunched = true; // Помечаем снаряд как запущенный
+        isLaunched = true;
 
-        // Сообщаем менеджеру о запуске боеприпаса
+        // Звук при отпускании
+        if (releaseSound != null)
+        {
+            audioSource.PlayOneShot(releaseSound);
+        }
+
+        // Звук полета через 0.5 секунды
+        if (flyingSound != null)
+        {
+            StartCoroutine(PlayFlyingSoundDelayed(0.5f));
+        }
+
+        // Сообщаем менеджеру
         if (ammunitionManager != null)
         {
             ammunitionManager.OnMolotovLaunched();
@@ -196,6 +220,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
             Debug.LogWarning("AmmunitionManager не найден!");
         }
     }
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -231,19 +256,22 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
     // Реализация интерфейса IAmmunition
     public void OnImpact()
     {
-        // Проверяем, что взрыв еще не произошел
         if (hasExploded)
             return;
 
-        hasExploded = true; // Помечаем, что взрыв произошел
+        hasExploded = true;
 
-        // Отключаем анимацию Idle и включаем анимацию взрыва
-        //if (animator != null)
-        //{
-        //    animator.SetTrigger("Explode"); // Предполагается, что в аниматоре есть триггер "Explode"
-        //}
+        // Проигрываем взрывной звук на отдельном объекте, чтобы не обрывался
+        if (explosionSound != null)
+        {
+            GameObject audioObj = new GameObject("ExplosionSound");
+            AudioSource tempAudio = audioObj.AddComponent<AudioSource>();
+            tempAudio.clip = explosionSound;
+            tempAudio.Play();
+            Destroy(audioObj, explosionSound.length);
+        }
 
-        // Создаем взрыв при столкновении с объектами
+        // Создаем визуальный эффект взрыва
         if (explosionPrefab != null)
         {
             GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
@@ -252,25 +280,25 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
             // Создаем осколки огня
             SpawnFireShards();
 
-            // Отключаем коллизии после взрыва
+            // Отключаем физику и коллайдер
             Collider2D myCollider = GetComponent<Collider2D>();
             if (myCollider != null)
             {
                 myCollider.enabled = false;
             }
 
-            // Делаем объект невидимым, но не уничтожаем сразу,
-            // чтобы дать время эффектам взрыва отработать
+            // Выключаем визуал объекта
             Renderer renderer = GetComponent<Renderer>();
             if (renderer != null)
             {
                 renderer.enabled = false;
             }
 
-            // Уничтожаем объект через небольшую задержку
+            // Уничтожаем объект (можно быстро, т.к. звук живет отдельно)
             Destroy(gameObject, 0.04f);
         }
     }
+
 
     // Создание осколков огня
     private void SpawnFireShards()
@@ -307,6 +335,16 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition,IProjectile
             }
         }
     }
+    private IEnumerator PlayFlyingSoundDelayed(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (isLaunched && !hasExploded && flyingSound != null)
+        {
+            audioSource.PlayOneShot(flyingSound);
+        }
+    }
+
     public Transform GetTransform()
     {
         return transform;

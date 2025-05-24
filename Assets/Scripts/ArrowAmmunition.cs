@@ -14,6 +14,13 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
     [SerializeField] private ArrowHitMolotovCondition arrowHitCondition;
     [SerializeField] private LayerMask molotovLayer; // Слой для молотова
 
+
+    [Header("Аудио")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip drawSound;
+    [SerializeField] private AudioClip shootSound;
+    [SerializeField] private float drawVolume = 1f;
+
     private Vector2 startPosition;
     private Vector2 releaseDirection;
     private Rigidbody2D arrowRigidbody;
@@ -155,11 +162,31 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
         {
             isPressed = true;
             arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
+
+            // Проигрываем звук натяжения
+            PlayDrawSound();
+        }
+    }
+
+    private void OnMouseDown()
+    {
+        if (!wasLaunched)
+        {
+            isPressed = true;
+            arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
+
+            // Проигрываем звук натяжения
+            PlayDrawSound();
         }
     }
 
     private void ReleaseArrow()
     {
+        if (shootSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(shootSound);
+        }
+
         if (!isPressed) return;
 
         isPressed = false;
@@ -174,15 +201,6 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
         // Вызываем метод интерфейса IAmmunition
         Launch(releaseDirection * forceMagnitude);
-    }
-
-    private void OnMouseDown()
-    {
-        if (!wasLaunched)
-        {
-            isPressed = true;
-            arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
-        }
     }
 
     private void OnMouseUp()
@@ -319,6 +337,18 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
         arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
 
         // Примечание: Мы не прикрепляем стрелу к объекту IAmmunition
+    }
+    private void PlayDrawSound()
+    {
+        if (drawSound != null)
+        {
+            GameObject soundObj = new GameObject("DrawSound");
+            AudioSource audioSource = soundObj.AddComponent<AudioSource>();
+            audioSource.clip = drawSound;
+            audioSource.volume = drawVolume;
+            audioSource.Play();
+            Destroy(soundObj, drawSound.length);
+        }
     }
 
     // Реализация метода из интерфейса IProjectile

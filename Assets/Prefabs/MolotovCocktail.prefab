@@ -52,6 +52,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -73,6 +75,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1935673931
   m_SortingLayer: 4
   m_SortingOrder: 0
@@ -232,6 +235,9 @@ MonoBehaviour:
   fireShardDistance: 1.2
   fireShardForce: 5
   fireShardLifetime: 3
+  explosionSound: {fileID: 8300000, guid: 5da808615c8fe3744aedd3b0095ebbd4, type: 3}
+  releaseSound: {fileID: 8300000, guid: e6fe44792d691834589aa4bb3ad9bc1a, type: 3}
+  flyingSound: {fileID: 8300000, guid: 29441f2c72976914cb118c1253f7608c, type: 3}
 --- !u!95 &7273124777801944125
 Animator:
   serializedVersion: 7
@@ -352,6 +358,8 @@ LineRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -373,6 +381,7 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0

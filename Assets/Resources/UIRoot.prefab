@@ -652,6 +652,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6196612875331642354, guid: a6b23ee4349cbe7468ef0a84a865a4a7, type: 3}
+      propertyPath: winSound
+      value: 
+      objectReference: {fileID: 8300000, guid: a535aeb999dca0944ba63e541f863344, type: 3}
+    - target: {fileID: 6196612875331642354, guid: a6b23ee4349cbe7468ef0a84a865a4a7, type: 3}
+      propertyPath: loseSound
+      value: 
+      objectReference: {fileID: 8300000, guid: ee06d16bbeea8934ba81f8473d507233, type: 3}
     - target: {fileID: 6254584940890603923, guid: a6b23ee4349cbe7468ef0a84a865a4a7, type: 3}
       propertyPath: m_IsActive
       value: 1

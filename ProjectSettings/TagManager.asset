@@ -12,6 +12,7 @@ TagManager:
   - Molotov
   - House
   - Arrow
+  - SecondSlingshot
   layers:
   - Default
   - TransparentFX

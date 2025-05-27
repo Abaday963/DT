@@ -340,14 +340,9 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
     }
     private void PlayDrawSound()
     {
-        if (drawSound != null)
+        if (drawSound != null && audioSource != null)
         {
-            GameObject soundObj = new GameObject("DrawSound");
-            AudioSource audioSource = soundObj.AddComponent<AudioSource>();
-            audioSource.clip = drawSound;
-            audioSource.volume = drawVolume;
-            audioSource.Play();
-            Destroy(soundObj, drawSound.length);
+            audioSource.PlayOneShot(drawSound);
         }
     }
 

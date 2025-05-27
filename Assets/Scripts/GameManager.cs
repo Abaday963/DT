@@ -19,7 +19,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Text starsText;
 
     [SerializeField] private GameObject nextLevelButton;
-    [SerializeField] private GameObject mainMenuButton;
 
     private UIGameplayRootBinder uiRootBinder;
     private GameplayEntryPoint gameplayEntryPoint;
@@ -37,7 +36,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioClip loseSound;
     [SerializeField] private float soundVolume = 1.0f;
 
-    private AudioSource audioSource;
+    [SerializeField] private AudioSource audioSource;
 
     public LevelManager LevelManager => levelManager;
 
@@ -161,19 +160,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (mainMenuButton == null)
-        {
-            Button[] allButtons = FindObjectsOfType<Button>();
-            foreach (Button b in allButtons)
-            {
-                if (b.gameObject.name.Contains("MainMenuButton"))
-                {
-                    mainMenuButton = b.gameObject;
-                    break;
-                }
-            }
-        }
-
         List<GameObject> foundStars = new List<GameObject>();
         Transform[] transforms = FindObjectsOfType<Transform>();
         foreach (Transform t in transforms)
@@ -275,7 +261,6 @@ public class GameManager : MonoBehaviour
         if (restartButton != null) restartButton.SetActive(false);
 
         if (nextLevelButton != null) nextLevelButton.SetActive(false);
-        if (mainMenuButton != null) mainMenuButton.SetActive(false);
 
         HideAllStars();
         if (starsText != null) starsText.text = "0";
@@ -333,9 +318,6 @@ public class GameManager : MonoBehaviour
         if (nextLevelButton != null)
             nextLevelButton.SetActive(hasNextLevel);
 
-        if (mainMenuButton != null)
-            mainMenuButton.SetActive(true);
-
         if (uiRootBinder != null)
         {
             if (uiRootBinder._nextLevelButton != null)
@@ -359,7 +341,6 @@ public class GameManager : MonoBehaviour
             losePanel.SetActive(true);
 
         if (nextLevelButton != null) nextLevelButton.SetActive(false);
-        if (mainMenuButton != null) mainMenuButton.SetActive(false);
 
         if (uiRootBinder != null)
         {

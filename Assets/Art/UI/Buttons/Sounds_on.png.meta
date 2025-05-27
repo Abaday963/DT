@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 547e557393dfa3c44aad81163e6847e0
+guid: 0b565c0f0c20a4e4db7844b3694aacb1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1531850815687660845
-    second: SecondUtes_0
+      213: -9169688531636935283
+    second: Sounds_on_0
+  - first:
+      213: 3493168904184914914
+    second: Sounds_on_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +54,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -74,7 +77,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SecondUtes_0
+      name: Sounds_on_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 109
-        height: 148
+        x: 1
+        y: 1
+        width: 19
+        height: 30
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d2594f5633a324510800000000000000
-      internalID: 1531850815687660845
+      spriteID: d85aec21dd8beb080800000000000000
+      internalID: -9169688531636935283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sounds_on_1
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 1
+        width: 12
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e3e16a5c9a3a7030800000000000000
+      internalID: 3493168904184914914
       vertices: []
       indices: 
       edges: []
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SecondUtes_0: 1531850815687660845
+      Sounds_on_0: -9169688531636935283
+      Sounds_on_1: 3493168904184914914
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

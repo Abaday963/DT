@@ -271,7 +271,6 @@ public class LevelManager : MonoBehaviour
     // Метод для окончательного завершения уровня с победой
     private void CompleteWinLevel()
     {
-        Debug.Log("asssssssssssssssssss2");
         if (isLevelCompleted) return;
 
         isLevelCompleted = true;

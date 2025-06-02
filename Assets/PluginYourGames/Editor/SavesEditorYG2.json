@@ -1,0 +1,22 @@
+{
+    "intExample": 5,
+    "strExample": "Hello!",
+    "boolExample": [
+        false,
+        false,
+        false,
+        false
+    ],
+    "idSave": 22,
+    "levelStars": [
+        0,
+        0,
+        3,
+        3,
+        3,
+        3
+    ],
+    "totalStars": 12,
+    "unlockedLevels": 6,
+    "lastSaveTime": "2025-06-02 23:48:43"
+}

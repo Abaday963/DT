@@ -38,6 +38,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private AudioSource audioSource;
 
+    private StarManager starManager;
+
     public LevelManager LevelManager => levelManager;
 
     private void Awake()
@@ -90,6 +92,10 @@ public class GameManager : MonoBehaviour
         UnsubscribeFromLevelManager();
         UnsubscribeFromUIRootBinder();
         FindReferences();
+
+        // Получаем ссылку на StarManager
+        starManager = StarManager.Instance;
+
         SubscribeToLevelManager();
         SubscribeToUIRootBinder();
         if (audioSource == null)
@@ -308,12 +314,19 @@ public class GameManager : MonoBehaviour
             audioSource.PlayOneShot(winSound, soundVolume);
         }
 
+        // Сохраняем прогресс через StarManager с PluginYG
+        if (starManager != null)
+        {
+            starManager.SetLevelStars(currentLevelIndex, stars);
+        }
+
         totalStarsEarned += stars;
 
         if (winPanel != null) winPanel.SetActive(true);
         if (restartButton != null) restartButton.SetActive(true);
 
-        bool hasNextLevel = HasNextLevel();
+        bool hasNextLevel = HasNextLevel() ;
+        //bool hasNextLevel = HasNextLevel() && IsLevelUnlocked(currentLevelIndex + 1);
 
         if (nextLevelButton != null)
             nextLevelButton.SetActive(hasNextLevel);
@@ -329,7 +342,6 @@ public class GameManager : MonoBehaviour
 
         ShowStars(stars);
     }
-
     private void HandleLevelLost(int stars, List<string> loseReasons)
     {
         if (loseSound != null && audioSource != null)
@@ -401,7 +413,14 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene(1); // главное меню
     }
-
+    //public bool IsLevelUnlocked(int levelIndex)
+    //{
+    //    if (starManager != null)
+    //    {
+    //        return starManager.IsLevelUnlocked(levelIndex);
+    //    }
+    //    return levelIndex <= 1; // Первый уровень всегда доступен
+    //}
 #if UNITY_EDITOR
     private void OnGUI()
     {

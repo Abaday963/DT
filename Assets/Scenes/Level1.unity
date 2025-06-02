@@ -1858,10 +1858,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Arrow
       objectReference: {fileID: 0}
-    - target: {fileID: 5523926359513032129, guid: 51a7988b0bf80ad48ac792465bfa0ce6, type: 3}
-      propertyPath: OutputAudioMixerGroup
-      value: 
-      objectReference: {fileID: 24300002, guid: 6fc94305277e9f941920102258fb1bd2, type: 2}
     - target: {fileID: 5745058141102792754, guid: 51a7988b0bf80ad48ac792465bfa0ce6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.968

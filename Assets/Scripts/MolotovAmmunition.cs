@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
@@ -26,10 +27,11 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
     //[SerializeField] private Animator animator;
 
     [Header("Аудио")]
-    private AudioSource audioSource;
+    [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip explosionSound;
     [SerializeField] private AudioClip releaseSound; // Звук при отпускании
     [SerializeField] private AudioClip flyingSound; // Звук через полсекунды после запуска
+    public AudioMixerGroup masterMixerGroup;
 
 
     private bool hasExploded = false; // Флаг для отслеживания взрыва
@@ -44,10 +46,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
         // Получаем или добавляем компонент AudioSource
         audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
+
         //if (animator == null)
         //{
         //    animator = GetComponent<Animator>();
@@ -207,7 +206,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
         // Звук полета через 0.5 секунды
         if (flyingSound != null)
         {
-            StartCoroutine(PlayFlyingSoundDelayed(0.5f));
+            StartCoroutine(PlayFlyingSoundDelayed(0.4f));
         }
 
         // Сообщаем менеджеру
@@ -267,6 +266,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             GameObject audioObj = new GameObject("ExplosionSound");
             AudioSource tempAudio = audioObj.AddComponent<AudioSource>();
             tempAudio.clip = explosionSound;
+            tempAudio.outputAudioMixerGroup = masterMixerGroup; // <-- Устанавливаем группу
             tempAudio.Play();
             Destroy(audioObj, explosionSound.length);
         }

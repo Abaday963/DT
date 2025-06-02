@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 1225374504023488578}
   - component: {fileID: 7668886234528502377}
   - component: {fileID: 9013157419278616634}
-  - component: {fileID: 6788384531315938166}
   - component: {fileID: 5523926359513032129}
   m_Layer: 0
   m_Name: Arrow
@@ -160,21 +159,6 @@ MonoBehaviour:
   drawSound: {fileID: 8300000, guid: 33fe7bf75281d9c4ca55be1a9df80037, type: 3}
   shootSound: {fileID: 8300000, guid: 90473b6d6cd8f0f41ab9fd908ba6ec9d, type: 3}
   drawVolume: 1
---- !u!114 &6788384531315938166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4995370823627520762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b5688c9935f654e95b1fe28fd78ecb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lineRenderer: {fileID: 1764800265324861332}
-  maxPoints: 20
-  minDistance: 0.1
 --- !u!82 &5523926359513032129
 AudioSource:
   m_ObjectHideFlags: 0
@@ -184,7 +168,7 @@ AudioSource:
   m_GameObject: {fileID: 4995370823627520762}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 6fc94305277e9f941920102258fb1bd2, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1

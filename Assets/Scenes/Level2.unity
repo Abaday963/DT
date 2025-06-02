@@ -1255,7 +1255,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6132052427728110599, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 12.3
+      value: 18.6
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110599, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1919,6 +1919,7 @@ MonoBehaviour:
   winSound: {fileID: 0}
   loseSound: {fileID: 0}
   soundVolume: 1
+  audioSource: {fileID: 0}
 --- !u!1 &765866969
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,6 +36,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
     private bool hasExploded = false; // Флаг для отслеживания взрыва
     private bool isLaunched = false; // Флаг для отслеживания запуска
+    private MolotovSpawner molotovSpawner;
 
     // Ссылка на менеджер боеприпасов
     private AmmunitionManager ammunitionManager;
@@ -209,18 +210,18 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             StartCoroutine(PlayFlyingSoundDelayed(0.4f));
         }
 
-        // Сообщаем менеджеру
+        // Сообщаем менеджеру (оригинальная система)
         if (ammunitionManager != null)
         {
             ammunitionManager.OnMolotovLaunched();
         }
-        else
+
+        // Сообщаем спавнеру (новая система)
+        if (molotovSpawner != null)
         {
-            Debug.LogWarning("AmmunitionManager не найден!");
+            molotovSpawner.OnMolotovLaunched();
         }
     }
-
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Проверяем, что бутылка запущена и еще не взорвалась
@@ -344,7 +345,10 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             audioSource.PlayOneShot(flyingSound);
         }
     }
-
+    public void SetSpawner(MolotovSpawner spawner)
+    {
+        molotovSpawner = spawner;
+    }
     public Transform GetTransform()
     {
         return transform;

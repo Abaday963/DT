@@ -569,7 +569,7 @@ Transform:
   m_GameObject: {fileID: 286213130}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.7535224, y: 11.4930105, z: 0}
+  m_LocalPosition: {x: -4.5, y: 11.4930105, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1064,6 +1064,14 @@ PrefabInstance:
     - target: {fileID: 3981542503060627036, guid: 72ab041d296fb364e99017e306f391f5, type: 3}
       propertyPath: m_Name
       value: WinIndicator
+      objectReference: {fileID: 0}
+    - target: {fileID: 8250161194491128648, guid: 72ab041d296fb364e99017e306f391f5, type: 3}
+      propertyPath: appearDelay
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8250161194491128648, guid: 72ab041d296fb364e99017e306f391f5, type: 3}
+      propertyPath: buttonAppearDelay
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4119,7 +4127,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5306823549507353955, guid: 49531999fd7c90d4fa04b8db67437459, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.22
+      value: 1.47
       objectReference: {fileID: 0}
     - target: {fileID: 5306823549507353955, guid: 49531999fd7c90d4fa04b8db67437459, type: 3}
       propertyPath: m_LocalPosition.y

@@ -14,6 +14,11 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
     [SerializeField] private ArrowHitMolotovCondition arrowHitCondition;
     [SerializeField] private LayerMask molotovLayer; // Слой для молотова
 
+    [Header("Анимация падения")]
+    [SerializeField] private float tiltAngle = 45f; // Угол наклона задней части
+    [SerializeField] private float tiltDuration = 0.3f; // Время наклона
+    [SerializeField] private float fallDelay = 0.2f; // Задержка перед падением
+    [SerializeField] private float fallGravity = 2f; // Гравитация при падении
 
     [Header("Аудио")]
     [SerializeField] private AudioSource audioSource;
@@ -26,6 +31,8 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
     private Rigidbody2D arrowRigidbody;
     private bool wasLaunched = false; // Флаг, указывающий, что стрела была выстрелена
     private Collider2D arrowCollider; // Ссылка на коллайдер стрелы
+    private bool isFalling = false; // Флаг анимации падения
+    private Quaternion originalRotation; // Исходный поворот стрелы
 
     private void Start()
     {
@@ -82,6 +89,9 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
     private void Update()
     {
+        // Если стрела падает, не обрабатываем ввод
+        if (isFalling) return;
+
         // Обработка PC ввода
         if (Input.GetMouseButtonDown(0) && !isPressed && !wasLaunched)
         {
@@ -253,7 +263,6 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
             return;
         }
 
-
         // Проверяем, имеет ли объект компонент IAmmunition
         IAmmunition target = collision.gameObject.GetComponent<IAmmunition>();
 
@@ -268,11 +277,11 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
             }
         }
 
-        // Если объект не реализует IAmmunition, застреваем в нем
+        // Если объект не реализует IAmmunition, запускаем анимацию падения
         if (target == null)
         {
-            // Застреваем в объекте
-            StickToObject(collision);
+            // Запускаем анимацию падения
+            StartCoroutine(FallAnimation());
         }
         else
         {
@@ -281,15 +290,53 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
         }
     }
 
-    // Новый метод для застревания стрелы в объектах
-    private void StickToObject(Collision2D collision)
+    // Корутина для анимации падения стрелы
+    private IEnumerator FallAnimation()
     {
-        // Остановка движения стрелы при столкновении
+        if (isFalling) yield break; // Если уже падаем, не запускаем повторно
+
+        isFalling = true;
+
+        // Останавливаем движение стрелы
+        OnImpact();
+
+        yield return new WaitForSeconds(0.2f);
+
+        // Сохраняем текущий поворот
+        originalRotation = transform.rotation;
+
+        // Фаза 1: Наклон задней части (с перьями) вниз
+        float elapsedTime = 0f;
+        Vector3 startEuler = originalRotation.eulerAngles;
+        Vector3 targetEuler = startEuler;
+        targetEuler.z += tiltAngle; // Наклоняем вниз
+
+        while (elapsedTime < tiltDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / tiltDuration;
+
+            // Плавная интерполяция поворота
+            Vector3 currentEuler = Vector3.Lerp(startEuler, targetEuler, t);
+            transform.rotation = Quaternion.Euler(currentEuler);
+
+            yield return null;
+        }
+
+        // Небольшая пауза перед падением
+        yield return new WaitForSeconds(fallDelay);
+
+        // Фаза 2: Падение всей стрелы
+        arrowRigidbody.bodyType = RigidbodyType2D.Dynamic;
+        arrowRigidbody.gravityScale = fallGravity;
+
+        // Через некоторое время стрела может быть уничтожена или остановлена
+        yield return new WaitForSeconds(2f);
+
+        // Останавливаем падение
         arrowRigidbody.linearVelocity = Vector2.zero;
         arrowRigidbody.angularVelocity = 0f;
         arrowRigidbody.bodyType = RigidbodyType2D.Kinematic;
-
-        Debug.Log("Стрела застряла в объекте: " + collision.gameObject.name);
     }
 
     public void Launch(Vector2 force)
@@ -338,6 +385,7 @@ public class ArrowAmmunition : MonoBehaviour, IAmmunition, IProjectile
 
         // Примечание: Мы не прикрепляем стрелу к объекту IAmmunition
     }
+
     private void PlayDrawSound()
     {
         if (drawSound != null && audioSource != null)

@@ -6592,6 +6592,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: WinIndicator
       objectReference: {fileID: 0}
+    - target: {fileID: 8250161194491128648, guid: 72ab041d296fb364e99017e306f391f5, type: 3}
+      propertyPath: appearDelay
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8250161194491128648, guid: 72ab041d296fb364e99017e306f391f5, type: 3}
+      propertyPath: buttonAppearDelay
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6667,20 +6675,20 @@ SceneRoots:
   - {fileID: 245723605}
   - {fileID: 1819583669}
   - {fileID: 2087507850}
+  - {fileID: 8758899722005795701}
   - {fileID: 286213131}
   - {fileID: 6567576208901315930}
   - {fileID: 773608216}
   - {fileID: 1434678725}
   - {fileID: 280371036}
+  - {fileID: 84658239}
   - {fileID: 765866970}
   - {fileID: 1931312392}
   - {fileID: 1374598353}
+  - {fileID: 8424465188915387845}
+  - {fileID: 2100049110}
   - {fileID: 1223784724}
   - {fileID: 3087310124881184789}
   - {fileID: 8994047}
-  - {fileID: 8424465188915387845}
   - {fileID: 847282957}
   - {fileID: 334465396}
-  - {fileID: 8758899722005795701}
-  - {fileID: 84658239}
-  - {fileID: 2100049110}

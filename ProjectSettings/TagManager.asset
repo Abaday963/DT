@@ -13,6 +13,7 @@ TagManager:
   - House
   - Arrow
   - SecondSlingshot
+  - Fire shard
   layers:
   - Default
   - TransparentFX

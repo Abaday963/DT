@@ -1,0 +1,676 @@
+fileFormatVersion: 2
+guid: 6334ad05f37e49e49bfae4b36508b439
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8461372636041564385
+    second: Pushka_1_0
+  - first:
+      213: -1047959316249715411
+    second: Pushka_1_1
+  - first:
+      213: -7129671827639966537
+    second: Pushka_1_2
+  - first:
+      213: 1997592671957818547
+    second: Pushka_1_3
+  - first:
+      213: 6597731353022211312
+    second: Pushka_1_4
+  - first:
+      213: -5753497470630249796
+    second: Pushka_1_5
+  - first:
+      213: -7822224856210011470
+    second: Pushka_1_6
+  - first:
+      213: -181363288911518237
+    second: Pushka_1_7
+  - first:
+      213: -2544990532543644812
+    second: Pushka_1_8
+  - first:
+      213: -6025855473567490840
+    second: Pushka_1_9
+  - first:
+      213: 4349505921345356071
+    second: Pushka_1_10
+  - first:
+      213: -5876567074483991498
+    second: Pushka_1_11
+  - first:
+      213: 3964951843536445506
+    second: Pushka_1_12
+  - first:
+      213: -6782051416484911962
+    second: Pushka_1_13
+  - first:
+      213: 3539448065668029200
+    second: Pushka_1_14
+  - first:
+      213: -1927706165636840272
+    second: Pushka_1_15
+  - first:
+      213: 2052585089466308960
+    second: Pushka_1_16
+  - first:
+      213: 4239298036955460814
+    second: Pushka_1_17
+  - first:
+      213: 4445498907301828834
+    second: Pushka_1_18
+  - first:
+      213: -4879003464133440734
+    second: Pushka_1_19
+  - first:
+      213: -2378912848818883117
+    second: Pushka_1_20
+  - first:
+      213: -3313101400449641941
+    second: Pushka_1_21
+  - first:
+      213: 1487049519789566501
+    second: Pushka_1_22
+  - first:
+      213: 8368726777893048450
+    second: Pushka_1_23
+  - first:
+      213: 538955501202900230
+    second: Pushka_1_24
+  - first:
+      213: -5197231909805523596
+    second: Pushka_1_25
+  - first:
+      213: -3426803161152975021
+    second: Pushka_1_26
+  - first:
+      213: -1863286390144322504
+    second: Pushka_1_27
+  - first:
+      213: -6052740753476417260
+    second: Pushka_1_28
+  - first:
+      213: -8700203714298446034
+    second: Pushka_1_29
+  - first:
+      213: -1795759660800099926
+    second: Pushka_1_30
+  - first:
+      213: 7606218411433245151
+    second: Pushka_1_31
+  - first:
+      213: 7709810195607614140
+    second: Pushka_1_32
+  - first:
+      213: -3747845739268831118
+    second: Pushka_1_33
+  - first:
+      213: -4143195696669436042
+    second: Pushka_1_34
+  - first:
+      213: 7254605781189355068
+    second: Pushka_1_35
+  - first:
+      213: -6788766821376714041
+    second: Pushka_1_36
+  - first:
+      213: -5372412165689369273
+    second: Pushka_1_37
+  - first:
+      213: 6692420445469615415
+    second: Pushka_1_38
+  - first:
+      213: 6591791171112111404
+    second: Pushka_1_39
+  - first:
+      213: 5755281259691978082
+    second: Pushka_1_40
+  - first:
+      213: 2026003008870257072
+    second: Pushka_1_41
+  - first:
+      213: 7228201485462488372
+    second: Pushka_1_42
+  - first:
+      213: 2503024806783862989
+    second: Pushka_1_43
+  - first:
+      213: -4555452844503464277
+    second: Pushka_1_44
+  - first:
+      213: -5151274280115995693
+    second: Pushka_1_45
+  - first:
+      213: -5113293887470747712
+    second: Pushka_1_46
+  - first:
+      213: -1423588043228183315
+    second: Pushka_1_47
+  - first:
+      213: 5932655992100571128
+    second: Pushka_1_48
+  - first:
+      213: 3407347942873913737
+    second: Pushka_1_49
+  - first:
+      213: -4795467874673331956
+    second: Pushka_1_50
+  - first:
+      213: -7047829897168105352
+    second: Pushka_1_51
+  - first:
+      213: 2599966339721486343
+    second: Pushka_1_52
+  - first:
+      213: -567984928196580361
+    second: Pushka_1_53
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Pushka_1_0
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 173
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1f2884fa6a239a80800000000000000
+      internalID: -8461372636041564385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_1
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 173
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2ddfdfdd86e471f0800000000000000
+      internalID: -1047959316249715411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_4
+      rect:
+        serializedVersion: 2
+        x: 675
+        y: 126
+        width: 115
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f4a85495b9df8b50800000000000000
+      internalID: 6597731353022211312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_5
+      rect:
+        serializedVersion: 2
+        x: 1475
+        y: 126
+        width: 115
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbab9f6a8887720b0800000000000000
+      internalID: -5753497470630249796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_6
+      rect:
+        serializedVersion: 2
+        x: 2275
+        y: 126
+        width: 115
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ba0f5cefefd17390800000000000000
+      internalID: -7822224856210011470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_7
+      rect:
+        serializedVersion: 2
+        x: 3075
+        y: 126
+        width: 115
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e5e125bc0bab7df0800000000000000
+      internalID: -181363288911518237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_8
+      rect:
+        serializedVersion: 2
+        x: 3875
+        y: 126
+        width: 115
+        height: 51
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47bf00738906eacd0800000000000000
+      internalID: -2544990532543644812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_9
+      rect:
+        serializedVersion: 2
+        x: 4675
+        y: 126
+        width: 115
+        height: 51
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ec9a268f5cdf5ca0800000000000000
+      internalID: -6025855473567490840
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_10
+      rect:
+        serializedVersion: 2
+        x: 5475
+        y: 126
+        width: 115
+        height: 51
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7218f3e379c8c5c30800000000000000
+      internalID: 4349505921345356071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_11
+      rect:
+        serializedVersion: 2
+        x: 6275
+        y: 126
+        width: 117
+        height: 51
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63c00a2916d327ea0800000000000000
+      internalID: -5876567074483991498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_13
+      rect:
+        serializedVersion: 2
+        x: 654
+        y: 71
+        width: 117
+        height: 51
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a46bf76b2051e1a0800000000000000
+      internalID: -6782051416484911962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_14
+      rect:
+        serializedVersion: 2
+        x: 1452
+        y: 67
+        width: 122
+        height: 51
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01b161f4345ae1130800000000000000
+      internalID: 3539448065668029200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_47
+      rect:
+        serializedVersion: 2
+        x: 2247
+        y: 69
+        width: 132
+        height: 53
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de404e897366e3ce0800000000000000
+      internalID: -1423588043228183315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_50
+      rect:
+        serializedVersion: 2
+        x: 3047
+        y: 69
+        width: 130
+        height: 52
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c017c4e1063137db0800000000000000
+      internalID: -4795467874673331956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pushka_1_53
+      rect:
+        serializedVersion: 2
+        x: 655
+        y: 18
+        width: 114
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fb211597bc1e18f0800000000000000
+      internalID: -567984928196580361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b67a7b335dbc69741bd58d39fdc738c8
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Pushka_1_0: -8461372636041564385
+      Pushka_1_1: -1047959316249715411
+      Pushka_1_10: 4349505921345356071
+      Pushka_1_11: -5876567074483991498
+      Pushka_1_12: 3964951843536445506
+      Pushka_1_13: -6782051416484911962
+      Pushka_1_14: 3539448065668029200
+      Pushka_1_15: -1927706165636840272
+      Pushka_1_16: 2052585089466308960
+      Pushka_1_17: 4239298036955460814
+      Pushka_1_18: 4445498907301828834
+      Pushka_1_19: -4879003464133440734
+      Pushka_1_2: -7129671827639966537
+      Pushka_1_20: -2378912848818883117
+      Pushka_1_21: -3313101400449641941
+      Pushka_1_22: 1487049519789566501
+      Pushka_1_23: 8368726777893048450
+      Pushka_1_24: 538955501202900230
+      Pushka_1_25: -5197231909805523596
+      Pushka_1_26: -3426803161152975021
+      Pushka_1_27: -1863286390144322504
+      Pushka_1_28: -6052740753476417260
+      Pushka_1_29: -8700203714298446034
+      Pushka_1_3: 1997592671957818547
+      Pushka_1_30: -1795759660800099926
+      Pushka_1_31: 7606218411433245151
+      Pushka_1_32: 7709810195607614140
+      Pushka_1_33: -3747845739268831118
+      Pushka_1_34: -4143195696669436042
+      Pushka_1_35: 7254605781189355068
+      Pushka_1_36: -6788766821376714041
+      Pushka_1_37: -5372412165689369273
+      Pushka_1_38: 6692420445469615415
+      Pushka_1_39: 6591791171112111404
+      Pushka_1_4: 6597731353022211312
+      Pushka_1_40: 5755281259691978082
+      Pushka_1_41: 2026003008870257072
+      Pushka_1_42: 7228201485462488372
+      Pushka_1_43: 2503024806783862989
+      Pushka_1_44: -4555452844503464277
+      Pushka_1_45: -5151274280115995693
+      Pushka_1_46: -5113293887470747712
+      Pushka_1_47: -1423588043228183315
+      Pushka_1_48: 5932655992100571128
+      Pushka_1_49: 3407347942873913737
+      Pushka_1_5: -5753497470630249796
+      Pushka_1_50: -4795467874673331956
+      Pushka_1_51: -7047829897168105352
+      Pushka_1_52: 2599966339721486343
+      Pushka_1_53: -567984928196580361
+      Pushka_1_6: -7822224856210011470
+      Pushka_1_7: -181363288911518237
+      Pushka_1_8: -2544990532543644812
+      Pushka_1_9: -6025855473567490840
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

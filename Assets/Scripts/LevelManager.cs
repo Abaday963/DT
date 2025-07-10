@@ -25,7 +25,6 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private LoseCondition[] loseConditions;
 
     [Header("Ссылки на объекты уровня")]
-    [SerializeField] private Building1 targetBuilding;
     [SerializeField] private AmmunitionManager ammunitionManager;
 
     [Header("Настройки")]
@@ -81,11 +80,6 @@ public class LevelManager : MonoBehaviour
     // Находим и настраиваем ссылки на объекты, если они не заданы в инспекторе
     private void FindAndSetupReferences()
     {
-        if (targetBuilding == null)
-        {
-            targetBuilding = FindAnyObjectByType<Building1>();
-        }
-
         if (ammunitionManager == null)
         {
             ammunitionManager = FindAnyObjectByType<AmmunitionManager>();

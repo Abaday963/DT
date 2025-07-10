@@ -12,6 +12,9 @@ public class ShieldController : MonoBehaviour
     public float timeToVineGrowth = 10f; // Время до начала роста лозы на щите
     public float delayBeforeIgnite = 2f; // Задержка перед возгоранием щита
 
+    [Header("Переключатели")]
+    public bool enableVines = true; // Новый переключатель
+
     [Header("Параметры триггеров для Animator")]
     public string vineGrowthTrigger = "VineGrowth";
     public string igniteExplosionTrigger = "IgniteExplosion"; // один триггер для анимации возгорание+взрыв
@@ -27,10 +30,12 @@ public class ShieldController : MonoBehaviour
 
     void Start()
     {
-        // Animator начнет с Idle по умолчанию
         VineController.OnVineIgnited += OnVineIgnited;
 
-        StartCoroutine(StartVineGrowthTimer());
+        if (enableVines)
+        {
+            StartCoroutine(StartVineGrowthTimer());
+        }
     }
 
     void OnDestroy()
@@ -50,8 +55,6 @@ public class ShieldController : MonoBehaviour
         {
             vineGrown = true;
             shieldAnimator.SetTrigger(vineGrowthTrigger);
-
-            // Если нужно, можно ждать окончания анимации роста лозы
             StartCoroutine(WaitForVineGrowthEnd());
         }
     }
@@ -79,10 +82,8 @@ public class ShieldController : MonoBehaviour
             isIgnited = true;
             shieldAnimator.SetTrigger(igniteExplosionTrigger);
 
-            // Ждем окончания всей анимации возгорание+взрыв
             yield return new WaitForSeconds(GetAnimationLength(igniteExplosionAnimation));
 
-            // Здесь можно добавить логику после взрыва, например:
             shieldCollider.enabled = false;
 
             // Destroy(gameObject);

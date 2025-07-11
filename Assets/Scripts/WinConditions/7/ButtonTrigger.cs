@@ -5,6 +5,7 @@ public class ButtonTrigger : MonoBehaviour
     [Header("Button Settings")]
     [SerializeField] private string targetTag = "Player"; // Тег объекта, который активирует кнопку
     [SerializeField] private MovingWall targetWall; // Ссылка на стену
+    [SerializeField] private MovingWallDown targetWallDown; // Ссылка на стену
     [SerializeField] private float cooldownTime = 5f; // Время кулдауна в секундах
     [SerializeField] private bool isPressed = false;
     private bool isOnCooldown = false;
@@ -53,6 +54,10 @@ public class ButtonTrigger : MonoBehaviour
         if (targetWall != null)
         {
             targetWall.ActivateWall();
+        }        
+        if (targetWallDown != null)
+        {
+            targetWallDown.ActivateWall();
         }
 
         Debug.Log("Кнопка нажата! Кулдаун: " + cooldownTime + " секунд");

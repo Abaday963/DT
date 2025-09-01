@@ -84,12 +84,17 @@ namespace YG.Insides
             else if (jsonAuth.playerAuth.ToString() == "rejected")
                 YG2.player.auth = false;
 
-            YG2.player.name = jsonAuth.playerName.ToString();
-            YG2.player.id = jsonAuth.playerId.ToString();
-            YG2.player.photo = jsonAuth.playerPhoto.ToString();
+            if (!string.IsNullOrEmpty(YG2.player.name))
+                YG2.player.name = jsonAuth.playerName.ToString();
+            else
+                YG2.player.name = InfoYG.ANONYMOUS;
 
-            if (YG2.player.photo == InfoYG.NO_DATA)
+            if (YG2.player.photo != InfoYG.NO_DATA)
+                YG2.player.photo = jsonAuth.playerPhoto.ToString();
+            else
                 YG2.player.photo = null;
+
+            YG2.player.id = jsonAuth.playerId.ToString();
 
             YG2.PayingStatus payingStatus;
             switch (jsonAuth.payingStatus.ToString())

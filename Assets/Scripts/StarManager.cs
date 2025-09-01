@@ -2,15 +2,41 @@
 using System.Collections.Generic;
 using YG;
 
+[System.Serializable]
+public class LevelProgress
+{
+    public int levelIndex;
+    public int stars;
+    public bool isUnlocked;
+
+    public LevelProgress(int index, int starsEarned, bool unlocked)
+    {
+        levelIndex = index;
+        stars = starsEarned;
+        isUnlocked = unlocked;
+    }
+}
+
+[System.Serializable]
+public class GameProgress
+{
+    public List<LevelProgress> levels = new List<LevelProgress>();
+    public int totalStars = 0;
+}
+
 public class StarManager : MonoBehaviour
 {
     public static StarManager Instance { get; private set; }
 
-    [Header("Настройки")]
-    [SerializeField] private bool enableDebugLogs = true;
-    [SerializeField] private int maxLevelsCount = 50; // Максимальное количество уровней в игре
+    [SerializeField] private int totalLevelsCount = 12;
+    [SerializeField] private bool debugMode = true;
 
-    // События для уведомления UI
+    private GameProgress gameProgress;
+    private const string SAVE_KEY = "GameProgress";
+    private bool isInitialized = false;
+
+    public System.Action<int, int> OnLevelStarsUpdated;
+    public System.Action<int> OnTotalStarsUpdated;
     public System.Action<int> OnStarsChanged;
     public System.Action<int> OnLevelUnlocked;
     public System.Action OnProgressLoaded;
@@ -21,6 +47,7 @@ public class StarManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            InitializeProgress();
         }
         else
         {
@@ -30,279 +57,322 @@ public class StarManager : MonoBehaviour
 
     private void Start()
     {
-        // Подписываемся на событие получения данных SDK
-        YG2.onGetSDKData += OnDataLoaded;
-
-        // Если данные уже загружены, инициализируем сразу
-        if (YG2.saves != null)
-        {
-            OnDataLoaded();
-        }
+        YG2.onGetSDKData += LoadProgress;
+        LoadProgress();
     }
 
     private void OnDestroy()
     {
-        YG2.onGetSDKData -= OnDataLoaded;
+        YG2.onGetSDKData -= LoadProgress;
     }
 
-    private void OnDataLoaded()
+    private void InitializeProgress()
     {
-        InitializeLevelStarsIfNeeded();
-
-        if (enableDebugLogs)
+        gameProgress = new GameProgress();
+        for (int i = 0; i < totalLevelsCount; i++)
         {
-            Debug.Log($"[StarManager] Прогресс загружен: {GetTotalStars()} звёзд, {GetUnlockedLevelsCount()} уровней разблокировано");
+            bool isUnlocked = (i == 0);
+            gameProgress.levels.Add(new LevelProgress(i, 0, isUnlocked));
         }
+        isInitialized = true;
 
-        OnProgressLoaded?.Invoke();
-        OnStarsChanged?.Invoke(GetTotalStars());
+        if (debugMode) Debug.Log("[StarManager] Прогресс инициализирован");
     }
 
-    private void InitializeLevelStarsIfNeeded()
-    {
-        if (YG2.saves.levelStars == null)
-        {
-            YG2.saves.levelStars = new List<int>();
-        }
-
-        // Расширяем список до нужного размера
-        while (YG2.saves.levelStars.Count < maxLevelsCount)
-        {
-            YG2.saves.levelStars.Add(0);
-        }
-    }
-
-    /// <summary>
-    /// Устанавливает количество звёзд для уровня
-    /// </summary>
-    /// <param name="levelIndex">Индекс уровня (начиная с 0)</param>
-    /// <param name="stars">Количество звёзд (0-3)</param>
-    public void SetLevelStars(int levelIndex, int stars)
+    public void LoadProgress()
     {
         if (YG2.saves == null)
         {
-            Debug.LogWarning("[StarManager] Сохранения ещё не загружены!");
+            if (debugMode) Debug.Log("[StarManager] SDK еще не готов");
             return;
         }
 
-        InitializeLevelStarsIfNeeded();
+        string savedData = "";
 
-        stars = Mathf.Clamp(stars, 0, 3);
-        levelIndex = Mathf.Clamp(levelIndex, 0, maxLevelsCount - 1);
-
-        // Если это новый результат или лучше предыдущего
-        if (YG2.saves.levelStars[levelIndex] < stars)
+        try
         {
-            // Вычитаем старые звёзды
-            YG2.saves.totalStars -= YG2.saves.levelStars[levelIndex];
+            var savesType = YG2.saves.GetType();
+            var fields = savesType.GetFields();
 
-            // Устанавливаем новые звёзды
-            YG2.saves.levelStars[levelIndex] = stars;
-            YG2.saves.totalStars += stars;
-
-            // Разблокируем следующий уровень если получили хотя бы 1 звезду
-            if (stars > 0)
+            foreach (var field in fields)
             {
-                int nextLevel = levelIndex + 1;
-                if (nextLevel > YG2.saves.unlockedLevels)
+                if (field.Name == SAVE_KEY && field.FieldType == typeof(string))
                 {
-                    YG2.saves.unlockedLevels = nextLevel;
-                    OnLevelUnlocked?.Invoke(nextLevel);
-
-                    if (enableDebugLogs)
-                        Debug.Log($"[StarManager] Разблокирован уровень: {nextLevel}");
+                    savedData = (string)field.GetValue(YG2.saves);
+                    break;
                 }
             }
 
-            // Сохраняем время последнего сохранения
-            YG2.saves.lastSaveTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
-            OnStarsChanged?.Invoke(YG2.saves.totalStars);
-
-            // Сохраняем прогресс в облако/локально
-            SaveProgress();
-
-            if (enableDebugLogs)
+            if (string.IsNullOrEmpty(savedData))
             {
-                Debug.Log($"[StarManager] Уровень {levelIndex}: {stars} звёзд. Общий счёт: {YG2.saves.totalStars}");
+                var props = savesType.GetProperties();
+                foreach (var prop in props)
+                {
+                    if (prop.Name == SAVE_KEY && prop.PropertyType == typeof(string))
+                    {
+                        savedData = (string)prop.GetValue(YG2.saves);
+                        break;
+                    }
+                }
             }
         }
-    }
+        catch { }
 
-    /// <summary>
-    /// Получает количество звёзд для уровня
-    /// </summary>
-    public int GetLevelStars(int levelIndex)
-    {
-        if (YG2.saves?.levelStars == null || levelIndex < 0 || levelIndex >= YG2.saves.levelStars.Count)
-            return 0;
-
-        return YG2.saves.levelStars[levelIndex];
-    }
-
-    /// <summary>
-    /// Получает общее количество звёзд
-    /// </summary>
-    public int GetTotalStars()
-    {
-        return YG2.saves?.totalStars ?? 0;
-    }
-
-    /// <summary>
-    /// Проверяет, разблокирован ли уровень
-    /// </summary>
-    public bool IsLevelUnlocked(int levelIndex)
-    {
-        if (YG2.saves == null) return levelIndex == 0; // Первый уровень всегда доступен
-        return levelIndex < YG2.saves.unlockedLevels;
-    }
-
-    /// <summary>
-    /// Получает количество разблокированных уровней
-    /// </summary>
-    public int GetUnlockedLevelsCount()
-    {
-        return YG2.saves?.unlockedLevels ?? 1;
-    }
-
-    /// <summary>
-    /// Принудительно разблокирует уровень
-    /// </summary>
-    public void UnlockLevel(int levelIndex)
-    {
-        if (YG2.saves == null) return;
-
-        if (levelIndex > YG2.saves.unlockedLevels)
+        if (!string.IsNullOrEmpty(savedData))
         {
-            YG2.saves.unlockedLevels = levelIndex;
-            OnLevelUnlocked?.Invoke(levelIndex);
-            SaveProgress();
+            try
+            {
+                gameProgress = JsonUtility.FromJson<GameProgress>(savedData);
+                if (gameProgress.levels.Count < totalLevelsCount)
+                {
+                    for (int i = gameProgress.levels.Count; i < totalLevelsCount; i++)
+                        gameProgress.levels.Add(new LevelProgress(i, 0, false));
+                }
 
-            if (enableDebugLogs)
-                Debug.Log($"[StarManager] Принудительно разблокирован уровень: {levelIndex}");
+                RecalculateTotalStars();
+                isInitialized = true;
+                OnProgressLoaded?.Invoke();
+
+                if (debugMode) Debug.Log($"[StarManager] Прогресс загружен: {gameProgress.totalStars} звезд");
+            }
+            catch
+            {
+                InitializeProgress();
+            }
+        }
+        else
+        {
+            InitializeProgress();
         }
     }
 
-    /// <summary>
-    /// Сохраняет прогресс используя PluginYG
-    /// </summary>
     public void SaveProgress()
     {
-        YG2.SaveProgress();
-
-        if (enableDebugLogs)
-            Debug.Log($"[StarManager] Прогресс сохранён: {GetTotalStars()} звёзд");
-    }
-
-    /// <summary>
-    /// Получает статистику по всем уровням
-    /// </summary>
-    public Dictionary<int, int> GetAllLevelStats()
-    {
-        var stats = new Dictionary<int, int>();
-
-        if (YG2.saves?.levelStars != null)
+        if (!isInitialized)
         {
-            for (int i = 0; i < YG2.saves.levelStars.Count; i++)
-            {
-                if (YG2.saves.levelStars[i] > 0)
-                {
-                    stats[i] = YG2.saves.levelStars[i];
-                }
-            }
+            if (debugMode) Debug.LogWarning("[StarManager] Попытка сохранения до инициализации");
+            return;
         }
 
-        return stats;
+        if (YG2.saves == null)
+        {
+            Debug.LogWarning("[StarManager] SDK не готов");
+            return;
+        }
+
+        try
+        {
+            string jsonData = JsonUtility.ToJson(gameProgress);
+            var savesType = YG2.saves.GetType();
+            bool saved = false;
+
+            foreach (var field in savesType.GetFields())
+            {
+                if (field.Name == SAVE_KEY && field.FieldType == typeof(string))
+                {
+                    field.SetValue(YG2.saves, jsonData);
+                    saved = true;
+                    break;
+                }
+            }
+
+            if (!saved)
+            {
+                foreach (var prop in savesType.GetProperties())
+                {
+                    if (prop.Name == SAVE_KEY && prop.PropertyType == typeof(string) && prop.CanWrite)
+                    {
+                        prop.SetValue(YG2.saves, jsonData);
+                        saved = true;
+                        break;
+                    }
+                }
+            }
+
+            if (saved)
+            {
+                YG2.SaveProgress();
+                if (debugMode) Debug.Log($"[StarManager] Прогресс сохранен: {gameProgress.totalStars} звезд");
+            }
+        }
+        catch (System.Exception e)
+        {
+            if (debugMode) Debug.LogError($"[StarManager] Ошибка сохранения: {e.Message}");
+        }
     }
 
-    /// <summary>
-    /// Сбрасывает весь прогресс (для тестирования)
-    /// </summary>
+    public void SetLevelStars(int levelIndex, int stars)
+    {
+        if (!isInitialized)
+        {
+            if (debugMode) Debug.LogWarning("[StarManager] Попытка установки звезд до инициализации");
+            return;
+        }
+
+        // Исправленная проверка: levelIndex должен быть от 0 до totalLevelsCount-1
+        if (levelIndex < 0 || levelIndex >= totalLevelsCount)
+        {
+            Debug.LogError($"[StarManager] Некорректный индекс: {levelIndex}. Допустимый диапазон: 0-{totalLevelsCount - 1}");
+            return;
+        }
+
+        // Дополнительная проверка на случай, если список levels меньше totalLevelsCount
+        if (levelIndex >= gameProgress.levels.Count)
+        {
+            Debug.LogError($"[StarManager] Индекс {levelIndex} превышает размер списка уровней ({gameProgress.levels.Count})");
+            return;
+        }
+
+        stars = Mathf.Clamp(stars, 0, 3);
+        LevelProgress level = gameProgress.levels[levelIndex];
+        int oldStars = level.stars;
+
+        if (debugMode)
+            Debug.Log($"[StarManager] Установка звезд для уровня {levelIndex + 1}: {oldStars} -> {stars}");
+
+        // Обновляем звезды (разрешаем и уменьшение звезд для тестирования)
+        if (stars != level.stars)
+        {
+            level.stars = stars;
+            level.isUnlocked = true;
+
+            // Разблокируем следующий уровень, если текущий пройден
+            if (stars > 0 && levelIndex + 1 < gameProgress.levels.Count)
+            {
+                if (!gameProgress.levels[levelIndex + 1].isUnlocked)
+                {
+                    gameProgress.levels[levelIndex + 1].isUnlocked = true;
+                    OnLevelUnlocked?.Invoke(levelIndex + 1);
+
+                    if (debugMode)
+                        Debug.Log($"[StarManager] Разблокирован уровень {levelIndex + 2}");
+                }
+            }
+
+            RecalculateTotalStars();
+            SaveProgress();
+
+            // Вызываем события ПОСЛЕ сохранения
+            OnLevelStarsUpdated?.Invoke(levelIndex, stars);
+            OnTotalStarsUpdated?.Invoke(gameProgress.totalStars);
+            OnStarsChanged?.Invoke(gameProgress.totalStars);
+
+            if (debugMode)
+                Debug.Log($"[StarManager] События вызваны для уровня {levelIndex + 1}: {stars} звезд");
+        }
+        else
+        {
+            if (debugMode)
+                Debug.Log($"[StarManager] Звезды не изменились для уровня {levelIndex + 1}");
+        }
+    }
+    public int GetLevelStars(int levelIndex)
+    {
+        if (!isInitialized) return 0;
+        return IsValid(levelIndex) ? gameProgress.levels[levelIndex].stars : 0;
+    }
+
+    public bool IsLevelUnlocked(int levelIndex)
+    {
+        if (!isInitialized) return false;
+        return IsValid(levelIndex) && gameProgress.levels[levelIndex].isUnlocked;
+    }
+
+    public int GetTotalStars()
+    {
+        if (!isInitialized) return 0;
+        return gameProgress.totalStars;
+    }
+
+    public GameProgress GetGameProgress() => gameProgress;
+
+    public int GetCurrentLevelIndex()
+    {
+        var identifier = FindObjectOfType<LevelIdentifier>();
+        if (identifier != null)
+            return identifier.logicalLevelIndex;
+
+        Debug.LogWarning("[StarManager] LevelIdentifier не найден на сцене.");
+        return -1;
+    }
+
+    private bool IsValid(int index) => index >= 0 && index < gameProgress.levels.Count;
+
+    private void RecalculateTotalStars()
+    {
+        gameProgress.totalStars = 0;
+        foreach (var level in gameProgress.levels)
+            gameProgress.totalStars += level.stars;
+    }
+
+    // Методы для принудительного обновления UI
+    public void ForceUpdateAllDisplays()
+    {
+        if (!isInitialized) return;
+
+        for (int i = 0; i < gameProgress.levels.Count; i++)
+        {
+            OnLevelStarsUpdated?.Invoke(i, gameProgress.levels[i].stars);
+        }
+        OnTotalStarsUpdated?.Invoke(gameProgress.totalStars);
+        OnStarsChanged?.Invoke(gameProgress.totalStars);
+
+        if (debugMode) Debug.Log("[StarManager] Принудительное обновление всех дисплеев");
+    }
+
     [ContextMenu("Сбросить прогресс")]
     public void ResetProgress()
     {
-        if (YG2.saves != null)
-        {
-            YG2.saves.levelStars = new List<int>();
-            YG2.saves.totalStars = 0;
-            YG2.saves.unlockedLevels = 1;
-            YG2.saves.lastSaveTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        InitializeProgress();
+        SaveProgress();
+        OnTotalStarsUpdated?.Invoke(0);
+        OnStarsChanged?.Invoke(0);
+        ForceUpdateAllDisplays();
 
-            InitializeLevelStarsIfNeeded();
-            SaveProgress();
-
-            OnStarsChanged?.Invoke(0);
-
-            if (enableDebugLogs)
-                Debug.Log("[StarManager] Прогресс сброшен");
-        }
+        if (debugMode) Debug.Log("[StarManager] Прогресс сброшен");
     }
 
-    /// <summary>
-    /// Разблокирует все уровни (для тестирования)
-    /// </summary>
     [ContextMenu("Разблокировать все уровни")]
     public void UnlockAllLevels()
     {
-        if (YG2.saves != null)
-        {
-            YG2.saves.unlockedLevels = maxLevelsCount;
-            SaveProgress();
+        if (!isInitialized) return;
 
-            if (enableDebugLogs)
-                Debug.Log("[StarManager] Все уровни разблокированы");
+        foreach (var level in gameProgress.levels)
+            level.isUnlocked = true;
+
+        SaveProgress();
+        ForceUpdateAllDisplays();
+
+        if (debugMode) Debug.Log("[StarManager] Все уровни разблокированы");
+    }
+
+    [ContextMenu("Дать 3 звезды всем уровням")]
+    public void GiveMaxStarsToAll()
+    {
+        if (!isInitialized) return;
+
+        for (int i = 0; i < gameProgress.levels.Count; i++)
+            SetLevelStars(i, 3);
+
+        if (debugMode) Debug.Log("[StarManager] Максимальные звезды выданы всем уровням");
+    }
+
+    // Методы для отладки
+    [ContextMenu("Показать текущий прогресс")]
+    public void DebugShowProgress()
+    {
+        if (!isInitialized)
+        {
+            Debug.Log("[StarManager] Не инициализирован");
+            return;
+        }
+
+        Debug.Log($"[StarManager] Общий прогресс: {gameProgress.totalStars} звезд");
+        for (int i = 0; i < gameProgress.levels.Count; i++)
+        {
+            var level = gameProgress.levels[i];
+            Debug.Log($"Уровень {i + 1}: {level.stars} звезд, " +
+                     (level.isUnlocked ? "разблокирован" : "заблокирован"));
         }
     }
-
-    /// <summary>
-    /// Добавляет звёзды к общему счёту (бонусы, награды и т.д.)
-    /// </summary>
-    public void AddBonusStars(int bonusStars)
-    {
-        if (YG2.saves != null && bonusStars > 0)
-        {
-            YG2.saves.totalStars += bonusStars;
-            OnStarsChanged?.Invoke(YG2.saves.totalStars);
-            SaveProgress();
-
-            if (enableDebugLogs)
-                Debug.Log($"[StarManager] Добавлено {bonusStars} бонусных звёзд");
-        }
-    }
-
-    // Автосохранение при сворачивании/закрытии игры
-    private void OnApplicationPause(bool pauseStatus)
-    {
-        if (pauseStatus) SaveProgress();
-    }
-
-    private void OnApplicationFocus(bool hasFocus)
-    {
-        if (!hasFocus) SaveProgress();
-    }
-
-#if UNITY_EDITOR
-    [ContextMenu("Показать статистику")]
-    private void ShowStats()
-    {
-        if (YG2.saves != null)
-        {
-            Debug.Log($"=== СТАТИСТИКА STARMANAGER ===");
-            Debug.Log($"Общих звёзд: {YG2.saves.totalStars}");
-            Debug.Log($"Разблокированных уровней: {YG2.saves.unlockedLevels}");
-            Debug.Log($"Последнее сохранение: {YG2.saves.lastSaveTime}");
-
-            var completedLevels = 0;
-            for (int i = 0; i < YG2.saves.levelStars.Count; i++)
-            {
-                if (YG2.saves.levelStars[i] > 0)
-                {
-                    completedLevels++;
-                    Debug.Log($"Уровень {i}: {YG2.saves.levelStars[i]} звёзд");
-                }
-            }
-            Debug.Log($"Пройденных уровней: {completedLevels}");
-        }
-    }
-#endif
 }

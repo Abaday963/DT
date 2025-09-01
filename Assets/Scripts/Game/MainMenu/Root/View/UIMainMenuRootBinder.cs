@@ -46,4 +46,28 @@ public class UIMainMenuRootBinder : MonoBehaviour
     {
         GoToLevelRequested?.Invoke(Scenes.LEVEL5);
     }
+    public void HandleGoToLevel6Click()
+    {
+        GoToLevelRequested?.Invoke(Scenes.LEVEL6);
+    }
+
+    public void HandleGoToLevel7Click()
+    {
+        GoToLevelRequested?.Invoke(Scenes.LEVEL7);
+    }
+
+    public void HandleGoToLevel8Click()
+    {
+        GoToLevelRequested?.Invoke(Scenes.LEVEL8);
+    }
+
+    public void HandleGoToLevel9Click()
+    {
+        GoToLevelRequested?.Invoke(Scenes.LEVEL9);
+    }
+
+    public void HandleGoToLevel10Click()
+    {
+        GoToLevelRequested?.Invoke(Scenes.LEVEL10);
+    }
 }

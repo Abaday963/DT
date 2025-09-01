@@ -50,10 +50,10 @@ namespace YG
             }
             else
             {
-                if (!infoYG.Authorization.scopes)
-                    player.name = InfoYG.ANONYMOUS;
-                else
-                    player.name = infoYG.Authorization.playerName;
+                //if (!infoYG.Authorization.scopes)
+                //    player.name = InfoYG.ANONYMOUS;
+                //else
+                player.name = infoYG.Authorization.playerName;
             }
 
             if (infoYG.Authorization.playerPhoto == InfoYG.DEMO_IMAGE)

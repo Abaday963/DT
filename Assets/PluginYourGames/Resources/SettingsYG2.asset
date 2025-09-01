@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efa747916aa66674d96ea40ca8a480b2, type: 3}
   m_Name: SettingsYG2
   m_EditorClassIdentifier: Assembly-CSharp::YG.InfoYG
+  Authorization:
+    scopes: 1
+    playerPhotoSize: 1
+    authorized: 1
+    playerName: Player current
+    uniqueID: 000
+    playerPhoto: demo image
+    payingStatus: 0
   InterstitialAdv:
     showFirstAdv: 1
     interAdvInterval: 60
@@ -23,7 +31,6 @@ MonoBehaviour:
     saveCloud: 1
     saveCloudInterval: 0
     flush: 1
-    labelAdvSimLabel: 0
   Basic:
     platform: {fileID: 11400000, guid: c2a303d33a9fd394bae4c4b88b9a1c44, type: 2}
     autoApplySettings: 1
@@ -38,7 +45,7 @@ MonoBehaviour:
     simulationLoadScene: 0
   Simulation:
     device: 0
-    language: ru
+    language: eng
     advIntervalSimulation: 60
     durationAdv: 0.5
     loadAdv: 0.05

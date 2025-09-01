@@ -110,6 +110,11 @@ public class MusicManager : MonoBehaviour
             case Scenes.LEVEL3:
             case Scenes.LEVEL4:
             case Scenes.LEVEL5:
+            case Scenes.LEVEL6:
+            case Scenes.LEVEL7:
+            case Scenes.LEVEL8:
+            case Scenes.LEVEL9:
+            case Scenes.LEVEL10:
                 return levelMusic;
 
             default:

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    private bool isRestarting = false;
 
     [Header("Настройки")]
     [SerializeField] private bool useDebugMenu = true;
@@ -73,11 +74,21 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
         UnsubscribeFromLevelManager();
         UnsubscribeFromUIRootBinder();
+
+        // ДОБАВИТЬ: Скрываем UI при деактивации
+        ForceHideAllUI();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         currentLevelIndex = scene.buildIndex;
+
+        // ДОБАВИТЬ: Дополнительная проверка при загрузке сцены
+        if (isRestarting)
+        {
+            Debug.Log("[GameManager] Сцена загружена после перезапуска");
+        }
+
         StartCoroutine(InitializeSceneAfterFrame());
     }
 
@@ -110,13 +121,22 @@ public class GameManager : MonoBehaviour
             audioSource.playOnAwake = false;
         }
 
-        // ВАЖНО: Сначала сбрасываем состояние игры (включая звезды)
+        // ВАЖНО: Сначала сбрасываем состояние игры
         ResetGameState();
 
-        // Только ПОСЛЕ сброса загружаем прогресс, но только если это не переход между уровнями
-        // Проверяем, был ли уровень уже пройден ранее
-        LoadCurrentLevelProgress();
+        // ИСПРАВЛЕНИЕ: Загружаем прогресс только если это НЕ перезапуск
+        if (!isRestarting)
+        {
+            LoadCurrentLevelProgress();
+        }
+        else
+        {
+            // Сбрасываем флаг перезапуска после инициализации
+            isRestarting = false;
+            Debug.Log("[GameManager] Перезапуск завершен - прогресс не загружался");
+        }
     }
+
 
     private void FindReferences()
     {
@@ -277,17 +297,22 @@ public class GameManager : MonoBehaviour
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
         if (restartButton != null) restartButton.SetActive(false);
-
         if (nextLevelButton != null) nextLevelButton.SetActive(false);
 
+        // Принудительное скрытие звезд
         HideAllStars();
         if (starsText != null) starsText.text = "0";
+
+        // ДОБАВИТЬ: Принудительное обновление Canvas
+        StartCoroutine(ForceUpdateUI());
 
         AmmunitionManager ammunitionManager = FindObjectOfType<AmmunitionManager>();
         if (ammunitionManager != null)
         {
             ammunitionManager.ResetAmmunition();
         }
+
+        Debug.Log("[GameManager] ResetGameState выполнен");
     }
 
     private void LoadCurrentLevelProgress()
@@ -306,13 +331,52 @@ public class GameManager : MonoBehaviour
 
     private void HideAllStars()
     {
+        Debug.Log("[GameManager] Скрываем все звезды...");
+
+        // Скрываем звезды из массива starIcons
         if (starIcons != null && starIcons.Length > 0)
         {
-            foreach (var starIcon in starIcons)
+            for (int i = 0; i < starIcons.Length; i++)
             {
-                if (starIcon != null)
-                    starIcon.SetActive(false);
+                if (starIcons[i] != null)
+                {
+                    starIcons[i].SetActive(false);
+                    Debug.Log($"[GameManager] Звезда {i} ({starIcons[i].name}) скрыта");
+                }
             }
+        }
+
+        // ДОБАВИТЬ: Дополнительный поиск всех объектов со словом Star
+        GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        foreach (GameObject obj in allGameObjects)
+        {
+            if (obj.name.Contains("Star") && obj.name.Contains("Icon") && obj.scene.isLoaded)
+            {
+                obj.SetActive(false);
+                Debug.Log($"[GameManager] Дополнительно скрыта звезда: {obj.name}");
+            }
+        }
+    }
+    private void ForceHideAllUI()
+    {
+        // Скрываем все UI элементы
+        if (winPanel != null) winPanel.SetActive(false);
+        if (losePanel != null) losePanel.SetActive(false);
+        if (restartButton != null) restartButton.SetActive(false);
+        if (nextLevelButton != null) nextLevelButton.SetActive(false);
+
+        // Скрываем звезды
+        HideAllStars();
+
+        // Сбрасываем текст
+        if (starsText != null) starsText.text = "0";
+
+        // Принудительно обновляем все Canvas
+        Canvas[] allCanvases = FindObjectsOfType<Canvas>();
+        foreach (Canvas canvas in allCanvases)
+        {
+            canvas.enabled = false;
+            canvas.enabled = true;
         }
     }
 
@@ -423,6 +487,21 @@ public class GameManager : MonoBehaviour
     {
         StopAllCoroutines();
         Time.timeScale = 1f;
+
+        // ДОБАВИТЬ: Устанавливаем флаг перезапуска
+        isRestarting = true;
+
+        // Принудительно скрываем все UI и звезды
+        ResetGameState();
+
+        // ДОБАВИТЬ: Останавливаем все процессы в LevelManager
+        if (levelManager != null)
+        {
+            levelManager.StopAllLevelProcesses();
+        }
+
+        Debug.Log("[GameManager] Перезапуск уровня - UI сброшен");
+
         SceneManager.LoadScene(currentLevelIndex);
     }
 
@@ -499,6 +578,18 @@ public class GameManager : MonoBehaviour
                 Debug.Log($"Уровень {i + 1}: {level.stars} звезд {status}");
             }
         }
+    }
+    private IEnumerator ForceUpdateUI()
+    {
+        yield return null; // Ждем один кадр
+
+        // Еще раз скрываем звезды
+        HideAllStars();
+
+        // Принудительно обновляем Canvas
+        Canvas.ForceUpdateCanvases();
+
+        Debug.Log("[GameManager] UI принудительно обновлен");
     }
 
     // Публичные методы для использования в других скриптах

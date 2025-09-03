@@ -894,7 +894,7 @@ GameObject:
   - component: {fileID: 403090219}
   m_Layer: 5
   m_Name: WingsRight
-  m_TagString: Untagged
+  m_TagString: StarUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2005,7 +2005,7 @@ GameObject:
   - component: {fileID: 1180396210}
   m_Layer: 5
   m_Name: Star 2
-  m_TagString: Untagged
+  m_TagString: StarUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2654,7 +2654,7 @@ GameObject:
   - component: {fileID: 1448717694}
   m_Layer: 5
   m_Name: WingsLeft
-  m_TagString: Untagged
+  m_TagString: StarUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3151,7 +3151,7 @@ GameObject:
   - component: {fileID: 1797902003}
   m_Layer: 5
   m_Name: Star
-  m_TagString: Untagged
+  m_TagString: StarUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3622,7 +3622,7 @@ GameObject:
   - component: {fileID: 2048271566}
   m_Layer: 5
   m_Name: Star 3
-  m_TagString: Untagged
+  m_TagString: StarUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

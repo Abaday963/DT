@@ -11,6 +11,11 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
     [SerializeField] private float maxDistance = 3f;
     [SerializeField] private Rigidbody2D shootRigid; // Ссылка на рогатку
 
+    // Компоненты вращения
+    [Header("Вращение")]
+    [SerializeField] private float rotationSpeed = 360f; // Скорость вращения в градусах в секунду
+    private bool shouldRotate = false; // Флаг для начала вращения
+    private Transform spriteTransform; // Ссылка на трансформ с спрайтом
 
     // Компоненты взрыва
     [SerializeField] private GameObject explosionPrefab;
@@ -44,6 +49,17 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
     private void Start()
     {
         ammoRigidbody = GetComponent<Rigidbody2D>();
+
+        // Получаем компонент SpriteRenderer на дочернем объекте
+        SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteTransform = spriteRenderer.transform;
+        }
+        else
+        {
+            Debug.LogWarning("SpriteRenderer не найден в дочерних объектах " + gameObject.name);
+        }
 
         // Получаем или добавляем компонент AudioSource
         audioSource = GetComponent<AudioSource>();
@@ -93,7 +109,14 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
     {
         // Если снаряд уже запущен, не обрабатываем пользовательский ввод
         if (isLaunched)
+        {
+            // Но продолжаем вращать спрайт, если нужно
+            if (shouldRotate && spriteTransform != null)
+            {
+                spriteTransform.Rotate(0, 0, -rotationSpeed * Time.deltaTime);
+            }
             return;
+        }
 
         // Обработка PC ввода
         if (Input.GetMouseButtonDown(0) && !isPressed)
@@ -186,6 +209,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             ReleaseAmmo();
         }
     }
+
     private IEnumerator Release()
     {
         yield return new WaitForSeconds(0.1f);
@@ -197,6 +221,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
         }
 
         isLaunched = true;
+        shouldRotate = true; // Начинаем вращение после выстрела
 
         // Звук при отпускании
         if (releaseSound != null)
@@ -222,6 +247,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             molotovSpawner.OnMolotovLaunched();
         }
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Проверяем, что бутылка запущена и еще не взорвалась
@@ -245,6 +271,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
         ammoRigidbody.bodyType = RigidbodyType2D.Dynamic;
         ammoRigidbody.AddForce(force, ForceMode2D.Impulse);
         isLaunched = true; // Помечаем снаряд как запущенный
+        shouldRotate = true; // Начинаем вращение
 
         // Сообщаем менеджеру о запуске боеприпаса
         if (ammunitionManager != null)
@@ -260,6 +287,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             return;
 
         hasExploded = true;
+        shouldRotate = false; // Останавливаем вращение при взрыве
 
         // Проигрываем взрывной звук на отдельном объекте, чтобы не обрывался
         if (explosionSound != null)
@@ -336,6 +364,7 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             }
         }
     }
+
     private IEnumerator PlayFlyingSoundDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -345,18 +374,22 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
             audioSource.PlayOneShot(flyingSound);
         }
     }
+
     public void SetSpawner(MolotovSpawner spawner)
     {
         molotovSpawner = spawner;
     }
+
     public Transform GetTransform()
     {
         return transform;
     }
+
     public bool IsLaunched()
     {
         return isLaunched;
     }
+
     public bool IsPressed()
     {
         return isPressed;

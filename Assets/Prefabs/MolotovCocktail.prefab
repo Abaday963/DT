@@ -229,6 +229,8 @@ MonoBehaviour:
   isPressed: 0
   maxDistance: 4
   shootRigid: {fileID: 0}
+  rotationSpeed: 360
+  spriteRenderer: {fileID: 1166118616177854422}
   explosionPrefab: {fileID: 6394536459978422649, guid: d49cc96f37e4fea4884df82553909320, type: 3}
   explosionDuration: 3
   fireShardPrefab: {fileID: 86077278804486420, guid: 0e8e129c17a66be449a5633677408a6f, type: 3}

@@ -59,7 +59,7 @@ public class LevelManager : MonoBehaviour
             victoryTimer += Time.deltaTime;
             if (victoryTimer >= victoryDelay)
             {
-                CompleteWinLevel(); // Повторный вызов завершит уровень
+                CompleteWinLevel();
                 return;
             }
         }
@@ -109,6 +109,8 @@ public class LevelManager : MonoBehaviour
         isLevelCompleted = false;
         completedWinConditions.Clear();
         actualWeightedStarValue = 0;
+
+        // ДОБАВИТЬ: Сброс флагов победы
         victoryPending = false;
         victoryTimer = 0f;
 
@@ -130,6 +132,8 @@ public class LevelManager : MonoBehaviour
 
         // Сбрасываем таймер автопроверки
         autoCheckTimer = 0f;
+
+        Debug.Log("[LevelManager] Все условия и флаги сброшены");
     }
 
     // Проверка условий победы
@@ -265,19 +269,24 @@ public class LevelManager : MonoBehaviour
     // Метод для окончательного завершения уровня с победой
     private void CompleteWinLevel()
     {
-        if (isLevelCompleted) return;
+        // Дополнительная проверка на повторный вызов
+        if (isLevelCompleted)
+        {
+            Debug.Log("[LevelManager] CompleteWinLevel уже был вызван, пропускаем");
+            return;
+        }
 
         isLevelCompleted = true;
+        victoryPending = false; // ДОБАВИТЬ: сбрасываем флаг
 
         // Определяем количество заработанных звезд в зависимости от режима
         int starsEarned;
         if (starCountMode == StarCountMode.ByConditionCount)
         {
-            starsEarned = Mathf.Min(completedWinConditions.Count, 3); // Максимум 3 звезды
+            starsEarned = Mathf.Min(completedWinConditions.Count, 3);
         }
         else if (starCountMode == StarCountMode.ByTargetHit)
         {
-            // В этом режиме используем значение звезд из TargetHitCondition
             starsEarned = targetHitCondition != null ? targetHitCondition.GetStarsEarned() : 1;
         }
         else // StarCountMode.ByConditionWeight
@@ -289,7 +298,7 @@ public class LevelManager : MonoBehaviour
             .Select(c => c.Name)
             .ToList();
 
-        Debug.Log($"Уровень пройден! Заработано звезд: {starsEarned}");
+        Debug.Log($"[LevelManager] Уровень пройден! Заработано звезд: {starsEarned}");
 
         OnLevelWon?.Invoke(starsEarned, completedConditionNames);
     }
@@ -331,6 +340,17 @@ public class LevelManager : MonoBehaviour
 
         // Вызываем событие проигрыша
         OnLevelLost?.Invoke(0, loseReasons);
+    }
+    public void StopAllLevelProcesses()
+    {
+        isLevelCompleted = true;
+        victoryPending = false;
+        victoryTimer = 0f;
+        autoCheckTimer = 0f;
+        completedWinConditions.Clear();
+        actualWeightedStarValue = 0;
+
+        Debug.Log("[LevelManager] Все процессы уровня остановлены");
     }
 
     // Методы для работы с UI

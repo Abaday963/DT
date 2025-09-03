@@ -9,6 +9,7 @@ public class GameEntryPoint
     private Coroutines _coroutines;
     private UIRootView _uiRoot;
     private string _currentLevel = Scenes.LEVEL1; // По умолчанию загружаем первый уровень
+    private bool _isFirstLaunch = true; // Флаг для отслеживания первого запуска
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void AutostartGame()
@@ -36,11 +37,13 @@ public class GameEntryPoint
         if (IsLevelScene(sceneName))
         {
             _currentLevel = sceneName;
+            _isFirstLaunch = false; // Это не первый запуск, если мы в уровне
             _coroutines.StartCoroutine(LoadAndStartLevel(_currentLevel));
             return;
         }
         if (sceneName == Scenes.MAIN_MENU)
         {
+            _isFirstLaunch = false; // Это не первый запуск, если мы уже в меню
             _coroutines.StartCoroutine(LoadAndStartMainMenu());
             return;
         }
@@ -71,6 +74,7 @@ public class GameEntryPoint
     public void LoadLevel(string levelName)
     {
         _currentLevel = levelName;
+        _isFirstLaunch = false; // После первого запуска всегда показываем загрузку
         _coroutines.StartCoroutine(LoadAndStartLevel(levelName));
     }
 
@@ -85,6 +89,7 @@ public class GameEntryPoint
         else
         {
             // Если следующего уровня нет, возвращаемся в главное меню
+            _isFirstLaunch = false; // Это уже не первый запуск
             _coroutines.StartCoroutine(LoadAndStartMainMenu());
         }
     }
@@ -130,6 +135,7 @@ public class GameEntryPoint
         // Подписываемся на события
         sceneEntryPoint.GoToMainMainMenuRequested += () =>
         {
+            _isFirstLaunch = false; // Это уже не первый запуск
             _coroutines.StartCoroutine(LoadAndStartMainMenu());
         };
 
@@ -150,10 +156,20 @@ public class GameEntryPoint
 
     private IEnumerator LoadAndStartMainMenu()
     {
-        _uiRoot.ShowLoadingScreen();
+        // Показываем экран загрузки только если это НЕ первый запуск
+        if (!_isFirstLaunch)
+        {
+            _uiRoot.ShowLoadingScreen();
+        }
+
         yield return LoadScene(Scenes.BOOT);
         yield return LoadScene(Scenes.MAIN_MENU);
-        yield return new WaitForSeconds(1.5f);
+
+        // Ждем только если это НЕ первый запуск
+        if (!_isFirstLaunch)
+        {
+            yield return new WaitForSeconds(1.5f);
+        }
 
         var sceneEntryPoint = Object.FindFirstObjectByType<MainMenuEntryPoint>();
         sceneEntryPoint.Run(_uiRoot);
@@ -166,7 +182,14 @@ public class GameEntryPoint
             LoadLevel(level);
         };
 
-        _uiRoot.HideLoadingScreen();
+        // Скрываем экран загрузки только если он был показан
+        if (!_isFirstLaunch)
+        {
+            _uiRoot.HideLoadingScreen();
+        }
+
+        // После первого запуска меню, сбрасываем флаг
+        _isFirstLaunch = false;
     }
 
     private IEnumerator LoadScene(string sceneName)

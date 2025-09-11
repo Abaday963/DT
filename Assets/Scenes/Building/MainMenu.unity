@@ -287,9 +287,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProgressInspector
   resetProgressButton: {fileID: 0}
+  unlockRegularButton: {fileID: 0}
   unlockAllButton: {fileID: 0}
   maxStarsButton: {fileID: 0}
+  testFirstSpecialButton: {fileID: 0}
   firstLevelSceneIndex: 3
+  levelsPerLine: 6
 --- !u!4 &1286782190
 Transform:
   m_ObjectHideFlags: 0
@@ -335,6 +338,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StarManager
   totalLevelsCount: 12
+  levelsPerLine: 6
+  starsRequiredForFirstSpecial: 15
+  starsRequiredForSecondSpecial: 33
   debugMode: 1
 --- !u!4 &1457973136
 Transform:

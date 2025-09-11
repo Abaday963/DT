@@ -8,12 +8,16 @@ public class LevelProgress
     public int levelIndex;
     public int stars;
     public bool isUnlocked;
+    public int lineIndex; // 0 - первая линия, 1 - вторая линия
+    public bool isSpecialLevel; // является ли уровень специальным (последним в линии)
 
-    public LevelProgress(int index, int starsEarned, bool unlocked)
+    public LevelProgress(int index, int starsEarned, bool unlocked, int line = 0, bool special = false)
     {
         levelIndex = index;
         stars = starsEarned;
         isUnlocked = unlocked;
+        lineIndex = line;
+        isSpecialLevel = special;
     }
 }
 
@@ -29,6 +33,9 @@ public class StarManager : MonoBehaviour
     public static StarManager Instance { get; private set; }
 
     [SerializeField] private int totalLevelsCount = 12;
+    [SerializeField] private int levelsPerLine = 6;
+    [SerializeField] private int starsRequiredForFirstSpecial = 15;
+    [SerializeField] private int starsRequiredForSecondSpecial = 33; // все звезды
     [SerializeField] private bool debugMode = true;
 
     private GameProgress gameProgress;
@@ -39,6 +46,7 @@ public class StarManager : MonoBehaviour
     public System.Action<int> OnTotalStarsUpdated;
     public System.Action<int> OnStarsChanged;
     public System.Action<int> OnLevelUnlocked;
+    public System.Action<int> OnSpecialLevelUnlocked;
     public System.Action OnProgressLoaded;
 
     private void Awake()
@@ -69,14 +77,20 @@ public class StarManager : MonoBehaviour
     private void InitializeProgress()
     {
         gameProgress = new GameProgress();
+
         for (int i = 0; i < totalLevelsCount; i++)
         {
-            bool isUnlocked = (i == 0);
-            gameProgress.levels.Add(new LevelProgress(i, 0, isUnlocked));
+            int lineIndex = i / levelsPerLine; // 0 или 1
+            int positionInLine = i % levelsPerLine; // 0-5
+            bool isSpecialLevel = (positionInLine == levelsPerLine - 1); // последний в линии
+            bool isUnlocked = !isSpecialLevel; // все обычные уровни разблокированы, специальные - нет
+
+            gameProgress.levels.Add(new LevelProgress(i, 0, isUnlocked, lineIndex, isSpecialLevel));
         }
+
         isInitialized = true;
 
-        if (debugMode) Debug.Log("[StarManager] Прогресс инициализирован");
+        if (debugMode) Debug.Log("[StarManager] Прогресс инициализирован с двумя линиями");
     }
 
     public void LoadProgress()
@@ -126,10 +140,18 @@ public class StarManager : MonoBehaviour
                 if (gameProgress.levels.Count < totalLevelsCount)
                 {
                     for (int i = gameProgress.levels.Count; i < totalLevelsCount; i++)
-                        gameProgress.levels.Add(new LevelProgress(i, 0, false));
+                    {
+                        int lineIndex = i / levelsPerLine;
+                        int positionInLine = i % levelsPerLine;
+                        bool isSpecialLevel = (positionInLine == levelsPerLine - 1);
+                        bool isUnlocked = !isSpecialLevel;
+
+                        gameProgress.levels.Add(new LevelProgress(i, 0, isUnlocked, lineIndex, isSpecialLevel));
+                    }
                 }
 
                 RecalculateTotalStars();
+                CheckSpecialLevelsUnlock(); // Проверяем разблокировку специальных уровней
                 isInitialized = true;
                 OnProgressLoaded?.Invoke();
 
@@ -209,14 +231,12 @@ public class StarManager : MonoBehaviour
             return;
         }
 
-        // Исправленная проверка: levelIndex должен быть от 0 до totalLevelsCount-1
         if (levelIndex < 0 || levelIndex >= totalLevelsCount)
         {
             Debug.LogError($"[StarManager] Некорректный индекс: {levelIndex}. Допустимый диапазон: 0-{totalLevelsCount - 1}");
             return;
         }
 
-        // Дополнительная проверка на случай, если список levels меньше totalLevelsCount
         if (levelIndex >= gameProgress.levels.Count)
         {
             Debug.LogError($"[StarManager] Индекс {levelIndex} превышает размер списка уровней ({gameProgress.levels.Count})");
@@ -228,28 +248,18 @@ public class StarManager : MonoBehaviour
         int oldStars = level.stars;
 
         if (debugMode)
-            Debug.Log($"[StarManager] Установка звезд для уровня {levelIndex + 1}: {oldStars} -> {stars}");
+        {
+            string levelType = level.isSpecialLevel ? "специальный" : "обычный";
+            Debug.Log($"[StarManager] Установка звезд для {levelType} уровня {levelIndex + 1} (линия {level.lineIndex + 1}): {oldStars} -> {stars}");
+        }
 
-        // Обновляем звезды (разрешаем и уменьшение звезд для тестирования)
         if (stars != level.stars)
         {
             level.stars = stars;
             level.isUnlocked = true;
 
-            // Разблокируем следующий уровень, если текущий пройден
-            if (stars > 0 && levelIndex + 1 < gameProgress.levels.Count)
-            {
-                if (!gameProgress.levels[levelIndex + 1].isUnlocked)
-                {
-                    gameProgress.levels[levelIndex + 1].isUnlocked = true;
-                    OnLevelUnlocked?.Invoke(levelIndex + 1);
-
-                    if (debugMode)
-                        Debug.Log($"[StarManager] Разблокирован уровень {levelIndex + 2}");
-                }
-            }
-
             RecalculateTotalStars();
+            CheckSpecialLevelsUnlock(); // Проверяем разблокировку специальных уровней после изменения звезд
             SaveProgress();
 
             // Вызываем события ПОСЛЕ сохранения
@@ -266,6 +276,72 @@ public class StarManager : MonoBehaviour
                 Debug.Log($"[StarManager] Звезды не изменились для уровня {levelIndex + 1}");
         }
     }
+
+    private void CheckSpecialLevelsUnlock()
+    {
+        // Проверяем первый специальный уровень (индекс 5 - последний в первой линии)
+        int firstSpecialIndex = levelsPerLine - 1; // 5
+        if (firstSpecialIndex < gameProgress.levels.Count)
+        {
+            LevelProgress firstSpecial = gameProgress.levels[firstSpecialIndex];
+            if (!firstSpecial.isUnlocked && gameProgress.totalStars >= starsRequiredForFirstSpecial)
+            {
+                firstSpecial.isUnlocked = true;
+                OnSpecialLevelUnlocked?.Invoke(firstSpecialIndex);
+                OnLevelUnlocked?.Invoke(firstSpecialIndex);
+
+                if (debugMode)
+                    Debug.Log($"[StarManager] Разблокирован первый специальный уровень ({firstSpecialIndex + 1}) за {starsRequiredForFirstSpecial} звезд!");
+            }
+        }
+
+        // Проверяем второй специальный уровень (индекс 11 - последний во второй линии)
+        int secondSpecialIndex = (levelsPerLine * 2) - 1; // 11
+        if (secondSpecialIndex < gameProgress.levels.Count)
+        {
+            LevelProgress secondSpecial = gameProgress.levels[secondSpecialIndex];
+            if (!secondSpecial.isUnlocked && gameProgress.totalStars >= starsRequiredForSecondSpecial)
+            {
+                secondSpecial.isUnlocked = true;
+                OnSpecialLevelUnlocked?.Invoke(secondSpecialIndex);
+                OnLevelUnlocked?.Invoke(secondSpecialIndex);
+
+                if (debugMode)
+                    Debug.Log($"[StarManager] Разблокирован второй специальный уровень ({secondSpecialIndex + 1}) за {starsRequiredForSecondSpecial} звезд!");
+            }
+        }
+    }
+
+    // Новые методы для работы с линиями
+    public bool IsSpecialLevel(int levelIndex)
+    {
+        if (!IsValid(levelIndex)) return false;
+        return gameProgress.levels[levelIndex].isSpecialLevel;
+    }
+
+    public int GetLevelLine(int levelIndex)
+    {
+        if (!IsValid(levelIndex)) return -1;
+        return gameProgress.levels[levelIndex].lineIndex;
+    }
+
+    public int GetStarsRequiredForSpecialLevel(int levelIndex)
+    {
+        if (!IsValid(levelIndex) || !gameProgress.levels[levelIndex].isSpecialLevel) return -1;
+
+        int lineIndex = gameProgress.levels[levelIndex].lineIndex;
+        return lineIndex == 0 ? starsRequiredForFirstSpecial : starsRequiredForSecondSpecial;
+    }
+
+    public bool CanUnlockSpecialLevel(int levelIndex)
+    {
+        if (!IsValid(levelIndex) || !gameProgress.levels[levelIndex].isSpecialLevel) return false;
+
+        int requiredStars = GetStarsRequiredForSpecialLevel(levelIndex);
+        return gameProgress.totalStars >= requiredStars;
+    }
+
+    // Остальные методы остаются без изменений
     public int GetLevelStars(int levelIndex)
     {
         if (!isInitialized) return 0;
@@ -332,7 +408,24 @@ public class StarManager : MonoBehaviour
         if (debugMode) Debug.Log("[StarManager] Прогресс сброшен");
     }
 
-    [ContextMenu("Разблокировать все уровни")]
+    [ContextMenu("Разблокировать все обычные уровни")]
+    public void UnlockAllRegularLevels()
+    {
+        if (!isInitialized) return;
+
+        foreach (var level in gameProgress.levels)
+        {
+            if (!level.isSpecialLevel)
+                level.isUnlocked = true;
+        }
+
+        SaveProgress();
+        ForceUpdateAllDisplays();
+
+        if (debugMode) Debug.Log("[StarManager] Все обычные уровни разблокированы");
+    }
+
+    [ContextMenu("Разблокировать ВСЕ уровни (включая специальные)")]
     public void UnlockAllLevels()
     {
         if (!isInitialized) return;
@@ -343,7 +436,7 @@ public class StarManager : MonoBehaviour
         SaveProgress();
         ForceUpdateAllDisplays();
 
-        if (debugMode) Debug.Log("[StarManager] Все уровни разблокированы");
+        if (debugMode) Debug.Log("[StarManager] ВСЕ уровни разблокированы (включая специальные)");
     }
 
     [ContextMenu("Дать 3 звезды всем уровням")]
@@ -368,11 +461,52 @@ public class StarManager : MonoBehaviour
         }
 
         Debug.Log($"[StarManager] Общий прогресс: {gameProgress.totalStars} звезд");
-        for (int i = 0; i < gameProgress.levels.Count; i++)
+
+        // Показываем по линиям
+        for (int line = 0; line < 2; line++)
         {
-            var level = gameProgress.levels[i];
-            Debug.Log($"Уровень {i + 1}: {level.stars} звезд, " +
-                     (level.isUnlocked ? "разблокирован" : "заблокирован"));
+            Debug.Log($"=== ЛИНИЯ {line + 1} ===");
+            for (int i = 0; i < levelsPerLine; i++)
+            {
+                int levelIndex = line * levelsPerLine + i;
+                if (levelIndex < gameProgress.levels.Count)
+                {
+                    var level = gameProgress.levels[levelIndex];
+                    string levelType = level.isSpecialLevel ? " (СПЕЦИАЛЬНЫЙ)" : "";
+                    string unlockStatus = level.isUnlocked ? "разблокирован" : "заблокирован";
+
+                    if (level.isSpecialLevel && !level.isUnlocked)
+                    {
+                        int requiredStars = GetStarsRequiredForSpecialLevel(levelIndex);
+                        unlockStatus += $" (нужно {requiredStars} звезд, есть {gameProgress.totalStars})";
+                    }
+
+                    Debug.Log($"Уровень {levelIndex + 1}{levelType}: {level.stars} звезд, {unlockStatus}");
+                }
+            }
         }
+    }
+
+    [ContextMenu("Дать 14 звезд для тестирования первого спец уровня")]
+    public void GiveStarsForFirstSpecialTest()
+    {
+        if (!isInitialized) return;
+
+        // Даем звезды первым 5 уровням (кроме специального)
+        int starsPerLevel = 14 / 5; // 2 звезды на уровень
+        int remainingStars = 14 % 5; // 4 оставшиеся звезды
+
+        for (int i = 0; i < levelsPerLine - 1; i++) // первые 5 уровней
+        {
+            int stars = starsPerLevel;
+            if (remainingStars > 0)
+            {
+                stars++;
+                remainingStars--;
+            }
+            SetLevelStars(i, stars);
+        }
+
+        Debug.Log("[StarManager] Дано 14 звезд для тестирования первого специального уровня");
     }
 }

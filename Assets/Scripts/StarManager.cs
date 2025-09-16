@@ -380,7 +380,39 @@ public class StarManager : MonoBehaviour
         foreach (var level in gameProgress.levels)
             gameProgress.totalStars += level.stars;
     }
+    // Добавьте эти методы в конец класса StarManager (перед закрывающей скобкой класса)
 
+    /// <summary>
+    /// Проверяет доступность уровня с учетом админ-блокировок
+    /// Использует LevelLockManager если он доступен
+    /// </summary>
+    public bool IsLevelAvailable(int levelIndex)
+    {
+        // Сначала проверяем стандартную логику
+        bool standardUnlock = IsLevelUnlocked(levelIndex);
+
+        // Если есть LevelLockManager, учитываем его блокировки
+        if (LevelLockManager.Instance != null)
+        {
+            return LevelLockManager.Instance.IsLevelAvailable(levelIndex);
+        }
+
+        // Если LevelLockManager нет, используем стандартную логику
+        return standardUnlock;
+    }
+
+    /// <summary>
+    /// Проверяет, заблокирован ли уровень администратором
+    /// </summary>
+    public bool IsLevelLockedByAdmin(int levelIndex)
+    {
+        if (LevelLockManager.Instance != null)
+        {
+            return LevelLockManager.Instance.IsLevelLockedByAdmin(levelIndex);
+        }
+
+        return false; // Если LevelLockManager нет, админ-блокировок тоже нет
+    }
     // Методы для принудительного обновления UI
     public void ForceUpdateAllDisplays()
     {

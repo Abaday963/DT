@@ -569,14 +569,7 @@ public class GameManager : MonoBehaviour
         int nextLogicalLevel = currentLevelIndex + 1;
         int nextSceneBuildIndex = GetSceneBuildIndex(nextLogicalLevel);
 
-        // Проверяем, разблокирован ли следующий уровень
-        if (starManager != null && !starManager.IsLevelUnlocked(nextLogicalLevel))
-        {
-            Debug.LogWarning($"[GameManager] Уровень {nextLogicalLevel + 1} еще не разблокирован!");
-            return;
-        }
-
-        // ИСПРАВЛЕНИЕ: Проверяем существование сцены
+        // Проверяем существование сцены
         if (nextSceneBuildIndex < SceneManager.sceneCountInBuildSettings)
         {
             Debug.Log($"[GameManager] Переход на уровень {nextLogicalLevel + 1} (сцена {nextSceneBuildIndex})");
@@ -586,6 +579,25 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("[GameManager] Следующего уровня нет, возвращаемся в главное меню");
             SceneManager.LoadScene(1); // главное меню
+        }
+
+        if (starManager != null && !starManager.IsLevelAvailable(nextLogicalLevel))
+        {
+            string reason = "";
+            if (LevelLockManager.Instance != null && LevelLockManager.Instance.IsLevelLockedByAdmin(nextLogicalLevel))
+            {
+                reason = " (заблокирован администратором)";
+            }
+            else
+            {
+                reason = " (еще не разблокирован)";
+            }
+
+            Debug.LogWarning($"[GameManager] Уровень {nextLogicalLevel + 1} недоступен{reason}");
+
+            // Возвращаемся в главное меню вместо перехода на недоступный уровень
+            LoadMainMenu();
+            return;
         }
     }
 
@@ -601,7 +613,9 @@ public class GameManager : MonoBehaviour
         if (starManager == null) return true;
 
         int nextLogicalLevel = currentLevelIndex + 1;
-        return starManager.IsLevelUnlocked(nextLogicalLevel);
+
+        // Используем новый метод IsLevelAvailable вместо IsLevelUnlocked
+        return starManager.IsLevelAvailable(nextLogicalLevel);
     }
 
     public void LoadMainMenu()

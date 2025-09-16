@@ -860,6 +860,7 @@ GameObject:
   - component: {fileID: 2643929962307725009}
   - component: {fileID: 4335623304639483202}
   - component: {fileID: 6476136049187688354}
+  - component: {fileID: 1462692044913976359}
   m_Layer: 5
   m_Name: level_5-1
   m_TagString: Untagged
@@ -973,7 +974,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7257346163087055904}
         m_TargetAssemblyTypeName: UIMainMenuRootBinder, Assembly-CSharp
-        m_MethodName: HandleGoToGamePlayButtonClick
+        m_MethodName: HandleGoToLevel5_1Click
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1004,6 +1005,55 @@ MonoBehaviour:
   emptyStarSprite: {fileID: -7678458166956771760, guid: 7cc57dcd272e3334f87153946bc0b118, type: 3}
   autoUpdate: 0
   updateInterval: 5
+  debugMode: 1
+--- !u!114 &1462692044913976359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 726074057610392180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25535ee64f5170f4b851fc6ac96b1e79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelLockVisual
+  levelIndex: 5
+  lockImage: {fileID: 6615171797618511201}
+  lockedSprite: {fileID: -1364454785454338120, guid: 96bb3d9205ac3ce419667d186afdea4a, type: 3}
+  unlockedSprite: {fileID: 3768903173106346322, guid: 96bb3d9205ac3ce419667d186afdea4a, type: 3}
+  lockedObject: {fileID: 0}
+  unlockedObject: {fileID: 0}
+  hideWhenUnlocked: 0
+  useColorTint: 0
+  lockedColor: {r: 1, g: 1, b: 1, a: 1}
+  unlockedColor: {r: 0, g: 1, b: 0, a: 1}
+  useAnimation: 0
+  animationDuration: 0.3
+  animationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   debugMode: 1
 --- !u!1 &805341834853489666
 GameObject:
@@ -2338,7 +2388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startPosition: {x: 665, y: -378, z: 0}
   endPosition: {x: -685, y: 400, z: 0}
-  moveSpeed: 800
+  moveSpeed: 1300
   openButton: {fileID: 7122342113967939904}
   closeButton: {fileID: 4520879676470876866}
 --- !u!1 &1860586051997894543
@@ -2566,6 +2616,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09d0ea0c6ef386b42bd5cbee9dc97328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelButtons: []
+  lockIcons: []
 --- !u!1 &2199571413261253725
 GameObject:
   m_ObjectHideFlags: 0
@@ -4025,7 +4077,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7257346163087055904}
         m_TargetAssemblyTypeName: UIMainMenuRootBinder, Assembly-CSharp
-        m_MethodName: HandleGoToLevel10Click
+        m_MethodName: HandleGoToLevel10_1Click
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

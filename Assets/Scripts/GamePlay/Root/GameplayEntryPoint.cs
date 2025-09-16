@@ -9,6 +9,9 @@ public class GameplayEntryPoint : MonoBehaviour
 
     [SerializeField] private UIGameplayRootBinder _sceneUIRootPrefab;
 
+    private StarManager starManager;
+    private LevelLockManager lockManager;
+
     public void Run(UIRootView uiRoot)
     {
         var uiScene = Instantiate(_sceneUIRootPrefab);
@@ -40,7 +43,28 @@ public class GameplayEntryPoint : MonoBehaviour
 
     public void RequestNextLevel()
     {
-        GoToNextLevelRequested?.Invoke();
+        // Проверяем доступность следующего уровня
+        if (starManager != null)
+        {
+            int currentLevel = starManager.GetCurrentLevelIndex();
+            int nextLevel = currentLevel + 1;
+
+            if (starManager.IsLevelAvailable(nextLevel))
+            {
+                GoToNextLevelRequested?.Invoke();
+            }
+            else
+            {
+                Debug.Log($"[GameplayEntryPoint] Следующий уровень {nextLevel + 1} недоступен");
+
+                // Можно показать уведомление или вернуться в меню
+                RequestGoToMainMenu();
+            }
+        }
+        else
+        {
+            GoToNextLevelRequested?.Invoke();
+        }
     }
 
     public void RequestRestartLevel()

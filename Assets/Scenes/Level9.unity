@@ -2966,11 +2966,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1035082061517425010, guid: bb8ddcc1e1f06c246a0da6dd55ccede5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.98
+      value: -0.78
       objectReference: {fileID: 0}
     - target: {fileID: 1035082061517425010, guid: bb8ddcc1e1f06c246a0da6dd55ccede5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.07
+      value: -5.48
       objectReference: {fileID: 0}
     - target: {fileID: 1035082061517425010, guid: bb8ddcc1e1f06c246a0da6dd55ccede5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3822,6 +3822,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa0668f160ec8d4fad456e3cd2b7fe0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firstLevelBuildIndex: 2
   useDebugMenu: 0
   restartDelay: 2
   winPanel: {fileID: 1229821717}
@@ -3829,6 +3830,7 @@ MonoBehaviour:
   restartButton: {fileID: 253415633}
   starsText: {fileID: 0}
   nextLevelButton: {fileID: 0}
+  menuButton: {fileID: 0}
   starIcons:
   - {fileID: 1797902001}
   - {fileID: 1180396208}
@@ -5954,11 +5956,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1035082061517425010, guid: bb8ddcc1e1f06c246a0da6dd55ccede5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.23
+      value: -2.29
       objectReference: {fileID: 0}
     - target: {fileID: 1035082061517425010, guid: bb8ddcc1e1f06c246a0da6dd55ccede5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.08
+      value: -2.95
       objectReference: {fileID: 0}
     - target: {fileID: 1035082061517425010, guid: bb8ddcc1e1f06c246a0da6dd55ccede5, type: 3}
       propertyPath: m_LocalPosition.z

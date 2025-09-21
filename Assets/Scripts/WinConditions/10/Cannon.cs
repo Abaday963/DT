@@ -11,6 +11,10 @@ public class Cannon : MonoBehaviour
     public GameObject fireEffectPrefab; // Префаб эффекта выстрела
     public float effectDuration = 1f; // Время жизни эффекта (если нужно принудительно удалить)
 
+    [Header("Звук")]
+    public AudioSource audioSource; // Аудио источник
+    public AudioClip fireSound; // Звук выстрела
+
     [Header("Настройки здоровья")]
     public int maxHealth = 100;
     private int currentHealth;
@@ -39,6 +43,12 @@ public class Cannon : MonoBehaviour
         if (animator == null)
         {
             animator = GetComponent<Animator>();
+        }
+
+        // Если нет аудио источника, пытаемся найти его
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
         }
 
         // Если дуло не назначено, используем firePoint
@@ -100,6 +110,9 @@ public class Cannon : MonoBehaviour
 
     void Fire()
     {
+        // Воспроизводим звук выстрела
+        PlayFireSound();
+
         // Запускаем анимацию выстрела
         if (animator != null)
         {
@@ -121,6 +134,14 @@ public class Cannon : MonoBehaviour
                 bulletScript.SetTarget(targetBase);
                 bulletScript.SetBulletPattern(nextBulletPattern);
             }
+        }
+    }
+
+    void PlayFireSound()
+    {
+        if (audioSource != null && fireSound != null)
+        {
+            audioSource.PlayOneShot(fireSound);
         }
     }
 

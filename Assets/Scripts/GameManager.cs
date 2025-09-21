@@ -519,9 +519,6 @@ public class GameManager : MonoBehaviour
         {
             if (uiRootBinder._nextLevelButton != null)
                 uiRootBinder._nextLevelButton.SetActive(false);
-
-            if (uiRootBinder._mainMenuButton != null)
-                uiRootBinder._mainMenuButton.SetActive(false);
         }
 
         HideAllStars();

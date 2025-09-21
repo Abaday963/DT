@@ -10,8 +10,13 @@ public class Kobok : MonoBehaviour
     public GameObject hitEffect; // Эффект попадания
     public AudioClip hitSound; // Звук попадания
 
+    [Header("Тряска камеры")]
+    public float shakeDuration = 0.3f; // Длительность тряски
+    public float shakeMagnitude = 0.1f; // Сила тряски
+
     private HealthManager healthManager;
     private AudioSource audioSource;
+    private CameraShake cameraShake; // Ссылка на скрипт тряски камеры
 
     void Start()
     {
@@ -19,6 +24,13 @@ public class Kobok : MonoBehaviour
 
         // Находим менеджер здоровья
         healthManager = FindObjectOfType<HealthManager>();
+
+        // Находим скрипт тряски камеры
+        cameraShake = FindObjectOfType<CameraShake>();
+        if (cameraShake == null)
+        {
+            Debug.LogWarning("CameraShake скрипт не найден! Тряска камеры не будет работать.");
+        }
 
         // Получаем AudioSource или создаем его
         audioSource = GetComponent<AudioSource>();
@@ -37,12 +49,17 @@ public class Kobok : MonoBehaviour
     public void TakeHit()
     {
         Debug.Log($"Кобок {gameObject.name} получил попадание!");
-
         currentHealth--;
 
         // Визуальные и звуковые эффекты
         ShowHitEffect();
         PlayHitSound();
+
+        // ДОБАВЛЯЕМ ТРЯСКУ КАМЕРЫ
+        if (cameraShake != null)
+        {
+            cameraShake.StartShake(shakeDuration, shakeMagnitude);
+        }
 
         // Уведомляем менеджер здоровья о попадании
         if (healthManager != null)
@@ -73,7 +90,6 @@ public class Kobok : MonoBehaviour
         {
             // Создаем эффект попадания
             GameObject effect = Instantiate(hitEffect, transform.position, transform.rotation);
-
             // Уничтожаем эффект через 2 секунды
             Destroy(effect, 2f);
         }
@@ -89,6 +105,12 @@ public class Kobok : MonoBehaviour
 
     void Die()
     {
+        // Более сильная тряска при смерти
+        if (cameraShake != null)
+        {
+            cameraShake.StartShake(shakeDuration * 1.5f, shakeMagnitude * 2f);
+        }
+
         // Уведомляем менеджер здоровья о смерти
         if (healthManager != null)
         {
@@ -96,9 +118,7 @@ public class Kobok : MonoBehaviour
         }
 
         Debug.Log($"Кобок {gameObject.name} погиб!");
-
         // Можно добавить анимацию смерти или эффекты
-
         // Уничтожаем объект
         Destroy(gameObject);
     }

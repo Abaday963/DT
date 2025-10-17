@@ -1,18 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public enum BulletPattern
-{
-    Straight,    // Прямая линия
-    Arc,         // Дуга
-    ZigzagArc,   // Зигзаг по дуге
-    Random       // Случайный выбор
-}
-
 public class EnemyBullet : MonoBehaviour
 {
     [Header("Настройки движения")]
-    public float speed = 5f;
+    public float speed = 55555555f;
     public float towardSpeed = 8f;
     public float lifetime = 10f;
 

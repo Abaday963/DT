@@ -11,6 +11,7 @@ public class MolotovSpawner : MonoBehaviour
     [SerializeField] private Transform spawnPoint;           // Точка появления в рогатке
 
     private GameObject currentMolotov;                       // Текущий боеприпас в рогатке
+    public float SpawnTIme=2f;
 
     private void Start()
     {
@@ -77,7 +78,7 @@ public class MolotovSpawner : MonoBehaviour
     // Небольшая задержка перед созданием нового боеприпаса
     private IEnumerator DelayedSpawn()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(SpawnTIme);
         SpawnMolotov();
     }
 

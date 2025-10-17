@@ -583,7 +583,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 6168177772902772000}
         m_TargetAssemblyTypeName: UIGameplayRootBinder, Assembly-CSharp
-        m_MethodName: HandleGoMainMenuButtonClick
+        m_MethodName: OnNextLevelButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1280,7 +1280,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 6168177772902772000}
         m_TargetAssemblyTypeName: UIGameplayRootBinder, Assembly-CSharp
-        m_MethodName: HandleGoMainMenuButtonClick
+        m_MethodName: OnRestartLevelButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2527,7 +2527,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 6168177772902772000}
         m_TargetAssemblyTypeName: UIGameplayRootBinder, Assembly-CSharp
-        m_MethodName: HandleGoMainMenuButtonClick
+        m_MethodName: OnMainMenuButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

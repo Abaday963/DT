@@ -1229,6 +1229,7 @@ MonoBehaviour:
   infiniteMode: 1
   molotovPrefab: {fileID: 7177661069518285097, guid: c1ef3fe4f552eac4388dbc6375b077ed, type: 3}
   spawnPoint: {fileID: 324191528}
+  SpawnTIme: 2
 --- !u!4 &825648017 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1649382002407086418, guid: 6ff5d38b5c193224abac1faf715dd190, type: 3}

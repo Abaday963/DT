@@ -1,51 +1,48 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
+
+public enum BulletPattern
+{
+    Straight,        // Прямая линия
+    Arc,            // Дуга
+    ZigzagArc,      // Зигзаг по дуге
+    ZigzagStraight, // Зигзаг прямо (новый паттерн для босса)
+    Random          // Случайный выбор
+}
 
 public class EnemyBulletBoss : MonoBehaviour
 {
     [Header("Настройки движения")]
-    public float speed = 5f;
-    public float towardSpeed = 8f;
-    public float lifetime = 10f;
+    public float speed = 8f; // Базовая скорость (будет изменяться динамически)
+    public float lifetime = 15f;
 
     [Header("Паттерн полета")]
     public BulletPattern bulletPattern = BulletPattern.Straight;
 
     [Header("Настройки дуги")]
-    public float arcHeight = 2f; // Высота дуги
+    public float arcHeight = 2f; // Высота дуги (может изменяться)
 
     [Header("Настройки зигзага")]
-    public float zigzagAmplitude = 1f; // Амплитуда зигзага
-    public float zigzagFrequency = 2f; // Частота зигзага
-    public float zigzacArcHeight = 2f; // Высота дуги
+    public float zigzagAmplitude = 1f; // Амплитуда зигзага (может изменяться)
+    public float zigzagFrequency = 2f; // Частота зигзага (может изменяться)
 
     [Header("Настройки поворота")]
-    public bool rotateTowardsDirection = true; // Поворачивать лицом к направлению движения
-    public Transform bulletFront; // Перед пули (если null, используется сам объект)
+    public bool rotateTowardsDirection = true;
+    public Transform bulletFront;
 
     [Header("Отладка")]
-    public bool showCurrentPattern = true; // Показать текущий паттерн в инспекторе
+    public bool showCurrentPattern = true;
 
     private Transform target;
     private Vector3 startPosition;
     private Vector3 targetPosition;
-    private float travelTime;
     private float currentTime;
     private Rigidbody2D rb;
-
-    // Для зигзага
-    private Vector3 lastPosition;
-    private float zigzagOffset;
 
     // Для поворота
     private Vector3 previousPosition;
 
-    // Текущий активный паттерн (для отладки)
+    // Текущий активный паттерн
     private BulletPattern activePattern;
-
-    // Модификаторы для босса
-    private float speedMultiplier = 1.0f;
-    private float zigzagIntensityMultiplier = 1.0f;
 
     void Start()
     {
@@ -56,13 +53,20 @@ public class EnemyBulletBoss : MonoBehaviour
         // Если выбран случайный паттерн, выбираем один из доступных
         if (bulletPattern == BulletPattern.Random)
         {
-            BulletPattern[] availablePatterns = { BulletPattern.Straight, BulletPattern.Arc, BulletPattern.ZigzagArc };
+            BulletPattern[] availablePatterns = {
+                BulletPattern.Straight,
+                BulletPattern.Arc,
+                BulletPattern.ZigzagArc,
+                BulletPattern.ZigzagStraight
+            };
             activePattern = availablePatterns[Random.Range(0, availablePatterns.Length)];
         }
         else
         {
             activePattern = bulletPattern;
         }
+
+        Debug.Log($"Пуля босса создана с паттерном: {activePattern}, скорость: {speed}");
 
         // Уничтожаем пулю через определенное время
         Destroy(gameObject, lifetime);
@@ -88,6 +92,9 @@ public class EnemyBulletBoss : MonoBehaviour
             case BulletPattern.ZigzagArc:
                 MoveZigzagArc();
                 break;
+            case BulletPattern.ZigzagStraight:
+                MoveZigzagStraight();
+                break;
         }
 
         // Поворачиваем пулю лицом к направлению движения
@@ -104,8 +111,7 @@ public class EnemyBulletBoss : MonoBehaviour
         if (target != null)
         {
             Vector3 direction = (targetPosition - transform.position).normalized;
-            float currentSpeed = towardSpeed * speedMultiplier;
-            transform.Translate(direction * currentSpeed * Time.deltaTime);
+            transform.Translate(direction * speed * Time.deltaTime);
         }
     }
 
@@ -113,10 +119,9 @@ public class EnemyBulletBoss : MonoBehaviour
     {
         if (target == null) return;
 
-        // Вычисляем общее время полета с учетом модификатора скорости
+        // Вычисляем общее время полета
         float totalDistance = Vector3.Distance(startPosition, targetPosition);
-        float effectiveSpeed = speed * speedMultiplier;
-        float totalTime = totalDistance / effectiveSpeed;
+        float totalTime = totalDistance / speed;
 
         // Вычисляем текущий прогресс (0 to 1)
         float progress = currentTime / totalTime;
@@ -141,10 +146,9 @@ public class EnemyBulletBoss : MonoBehaviour
     {
         if (target == null) return;
 
-        // Вычисляем общее время полета с учетом модификатора скорости
+        // Вычисляем общее время полета
         float totalDistance = Vector3.Distance(startPosition, targetPosition);
-        float effectiveSpeed = speed * speedMultiplier;
-        float totalTime = totalDistance / effectiveSpeed;
+        float totalTime = totalDistance / speed;
 
         // Вычисляем текущий прогресс (0 to 1)
         float progress = currentTime / totalTime;
@@ -159,13 +163,11 @@ public class EnemyBulletBoss : MonoBehaviour
         Vector3 linearPosition = Vector3.Lerp(startPosition, targetPosition, progress);
 
         // Добавляем высоту дуги (параболическая кривая)
-        float arcOffset = zigzacArcHeight * 4f * progress * (1f - progress);
+        float arcOffset = arcHeight * 4f * progress * (1f - progress);
         Vector3 arcPosition = linearPosition + Vector3.up * arcOffset;
 
-        // Добавляем зигзагообразное отклонение с учетом интенсивности
-        float effectiveZigzagAmplitude = zigzagAmplitude * zigzagIntensityMultiplier;
-        float effectiveZigzagFrequency = zigzagFrequency * zigzagIntensityMultiplier;
-        float zigzagValue = Mathf.Sin(currentTime * effectiveZigzagFrequency) * effectiveZigzagAmplitude;
+        // Добавляем зигзагообразное отклонение
+        float zigzagValue = Mathf.Sin(currentTime * zigzagFrequency) * zigzagAmplitude;
 
         // Вычисляем перпендикулярный вектор для зигзага
         Vector3 direction = (targetPosition - startPosition).normalized;
@@ -175,16 +177,31 @@ public class EnemyBulletBoss : MonoBehaviour
         transform.position = arcPosition + zigzagOffset;
     }
 
+    private void MoveZigzagStraight()
+    {
+        if (target == null) return;
+
+        // Основное движение к цели
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        Vector3 movement = direction * speed * Time.deltaTime;
+
+        // Добавляем зигзагообразное отклонение
+        float zigzagValue = Mathf.Sin(currentTime * zigzagFrequency) * zigzagAmplitude;
+
+        // Вычисляем перпендикулярный вектор для зигзага
+        Vector3 perpendicular = new Vector3(-direction.y, direction.x, 0);
+        Vector3 zigzagMovement = perpendicular * zigzagValue * Time.deltaTime;
+
+        transform.Translate(movement + zigzagMovement);
+    }
+
     private void RotateTowardsDirection()
     {
         Vector3 movementDirection = transform.position - previousPosition;
 
-        if (movementDirection.magnitude > 0.01f) // Избегаем поворота при очень маленьком движении
+        if (movementDirection.magnitude > 0.01f)
         {
-            // Вычисляем угол поворота
             float angle = Mathf.Atan2(movementDirection.y, movementDirection.x) * Mathf.Rad2Deg;
-
-            // Применяем поворот к объекту (или к bulletFront, если он задан)
             Transform rotationTarget = bulletFront != null ? bulletFront : transform;
             rotationTarget.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
@@ -196,14 +213,6 @@ public class EnemyBulletBoss : MonoBehaviour
         if (target != null)
         {
             targetPosition = target.position;
-
-            // Для дуги вычисляем время полета
-            if (bulletPattern == BulletPattern.Arc)
-            {
-                float distance = Vector3.Distance(startPosition, targetPosition);
-                float effectiveSpeed = speed * speedMultiplier;
-                travelTime = distance / effectiveSpeed;
-            }
         }
     }
 
@@ -213,51 +222,29 @@ public class EnemyBulletBoss : MonoBehaviour
         activePattern = pattern;
     }
 
-    // Новые методы для босса
-    public void SetSpeedMultiplier(float multiplier)
+    public void SetSpeed(float newSpeed)
     {
-        speedMultiplier = multiplier;
-
-        // Если цель уже установлена и это дуга, пересчитываем время полета
-        if (target != null && (bulletPattern == BulletPattern.Arc || activePattern == BulletPattern.Arc))
-        {
-            float distance = Vector3.Distance(startPosition, targetPosition);
-            float effectiveSpeed = speed * speedMultiplier;
-            travelTime = distance / effectiveSpeed;
-        }
+        speed = newSpeed;
     }
 
-    public void SetZigzagIntensity(float intensity)
-    {
-        zigzagIntensityMultiplier = intensity;
-    }
-
-    // Дополнительные методы для более тонкой настройки
-    public void SetCustomSpeed(float customSpeed)
-    {
-        speed = customSpeed;
-        towardSpeed = customSpeed;
-    }
-
-    public void SetZigzagParameters(float amplitude, float frequency)
+    public void SetZigzagSettings(float amplitude, float frequency)
     {
         zigzagAmplitude = amplitude;
         zigzagFrequency = frequency;
     }
 
-    // Метод для получения текущих параметров (для отладки)
-    public void GetBulletInfo()
+    public void SetArcHeight(float height)
     {
-        Debug.Log($"Bullet Info - Pattern: {activePattern}, Speed Multiplier: {speedMultiplier}, Zigzag Intensity: {zigzagIntensityMultiplier}");
+        arcHeight = height;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Пуля столкнулась с объектом: {other.name}, тег: {other.tag}");
+        Debug.Log($"Пуля босса столкнулась с объектом: {other.name}, тег: {other.tag}");
 
         if (other.CompareTag("PlayerBase"))
         {
-            Debug.Log($"Попадание в кобока: {other.name}");
+            Debug.Log($"Попадание в цель: {other.name}");
             Kobok kobok = other.GetComponent<Kobok>();
             if (kobok != null)
             {
@@ -273,7 +260,7 @@ public class EnemyBulletBoss : MonoBehaviour
 
         if (other.CompareTag("Molotov"))
         {
-            Debug.Log("Пуля попала в стену/препятствие");
+            Debug.Log("Пуля босса попала в стену/препятствие");
             Destroy(gameObject);
         }
     }
@@ -292,7 +279,7 @@ public class EnemyBulletBoss : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Molotov"))
         {
-            Debug.Log("Пуля попала в стену/препятствие");
+            Debug.Log("Пуля босса попала в стену/препятствие");
             Destroy(gameObject);
         }
     }

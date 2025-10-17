@@ -255,7 +255,6 @@ MonoBehaviour:
   targetHitCondition: {fileID: 0}
   winConditions: []
   loseConditions: []
-  targetBuilding: {fileID: 1249481219}
   ammunitionManager: {fileID: 230994085}
   autoCheckForWin: 1
   autoCheckInterval: 0.5
@@ -1806,13 +1805,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa0668f160ec8d4fad456e3cd2b7fe0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firstLevelBuildIndex: 2
   useDebugMenu: 0
   restartDelay: 2
+  gameStartDelay: 0.5
   winPanel: {fileID: 1229821717}
   losePanel: {fileID: 194826315}
   restartButton: {fileID: 253415633}
   starsText: {fileID: 0}
   nextLevelButton: {fileID: 0}
+  menuButton: {fileID: 0}
   starIcons:
   - {fileID: 1797902001}
   - {fileID: 1180396208}
@@ -2756,6 +2758,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTrigger
   targetTag: Arrow
   targetWall: {fileID: 1608031215}
+  targetWallDown: {fileID: 0}
   cooldownTime: 5
   isPressed: 0
   buttonSprite: {fileID: 1765023030}

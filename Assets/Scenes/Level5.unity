@@ -1524,6 +1524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa0668f160ec8d4fad456e3cd2b7fe0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firstLevelBuildIndex: 2
   useDebugMenu: 0
   restartDelay: 2
   winPanel: {fileID: 1229821717}
@@ -1531,6 +1532,7 @@ MonoBehaviour:
   restartButton: {fileID: 253415633}
   starsText: {fileID: 0}
   nextLevelButton: {fileID: 0}
+  menuButton: {fileID: 0}
   starIcons:
   - {fileID: 1797902001}
   - {fileID: 1180396208}

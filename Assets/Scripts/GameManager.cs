@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     private bool isRestarting = false;
 
     [Header("Настройки индексации")]
-    [SerializeField] private int firstLevelBuildIndex = 2; // Индекс первого уровня в Build Settings
+    [SerializeField] private int firstLevelBuildIndex = 2; // Индекс первого уровня в Build Settings (обычно 2, если 0=Splash, 1=Menu)
 
     [Header("Настройки")]
     [SerializeField] private bool useDebugMenu = true;
@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject restartButton;
     [SerializeField] private Text starsText;
     [SerializeField] private GameObject nextLevelButton;
-    [SerializeField] private GameObject menuButton; // ДОБАВЛЕНО: кнопка меню
+    [SerializeField] private GameObject menuButton;
 
     private UIGameplayRootBinder uiRootBinder;
     private GameplayEntryPoint gameplayEntryPoint;
@@ -59,15 +59,15 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // ИСПРАВЛЕНИЕ: Правильная индексация
+        // ИСПРАВЛЕНО: Правильная индексация
         currentSceneBuildIndex = SceneManager.GetActiveScene().buildIndex;
         currentLevelIndex = GetLogicalLevelIndex(currentSceneBuildIndex);
 
-        Debug.Log($"[GameManager] Сцена: {currentSceneBuildIndex}, Логический уровень: {currentLevelIndex + 1}");
+        Debug.Log($"[GameManager] Сцена: {currentSceneBuildIndex}, Логический уровень: {currentLevelIndex}");
     }
 
     /// <summary>
-    /// Конвертирует индекс сцены в логический индекс уровня
+    /// Конвертирует индекс сцены в логический индекс уровня (0, 1, 2...)
     /// </summary>
     private int GetLogicalLevelIndex(int sceneBuildIndex)
     {
@@ -115,11 +115,11 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // ИСПРАВЛЕНИЕ: Правильное обновление индексов
+        // ИСПРАВЛЕНО: Правильное обновление индексов
         currentSceneBuildIndex = scene.buildIndex;
         currentLevelIndex = GetLogicalLevelIndex(currentSceneBuildIndex);
 
-        Debug.Log($"[GameManager] Загружена сцена {currentSceneBuildIndex}, логический уровень: {currentLevelIndex + 1}");
+        Debug.Log($"[GameManager] Загружена сцена {currentSceneBuildIndex}, логический уровень: {currentLevelIndex}");
 
         if (isRestarting)
         {
@@ -242,7 +242,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // ДОБАВЛЕНО: Поиск кнопки меню
         if (menuButton == null)
         {
             Button[] allButtons = FindObjectsOfType<Button>();
@@ -356,7 +355,7 @@ public class GameManager : MonoBehaviour
         if (losePanel != null) losePanel.SetActive(false);
         if (restartButton != null) restartButton.SetActive(false);
         if (nextLevelButton != null) nextLevelButton.SetActive(false);
-        if (menuButton != null) menuButton.SetActive(false); // ДОБАВЛЕНО: скрытие кнопки меню
+        if (menuButton != null) menuButton.SetActive(false);
 
         HideAllStars();
         if (starsText != null) starsText.text = "0";
@@ -380,7 +379,7 @@ public class GameManager : MonoBehaviour
             if (savedStars > 0)
             {
                 ShowStars(savedStars);
-                Debug.Log($"[GameManager] Загружен прогресс уровня {currentLevelIndex + 1}: {savedStars} звезд");
+                Debug.Log($"[GameManager] Загружен прогресс уровня {currentLevelIndex} (Уровень #{currentLevelIndex + 1}): {savedStars} звезд");
             }
         }
     }
@@ -418,7 +417,7 @@ public class GameManager : MonoBehaviour
         if (losePanel != null) losePanel.SetActive(false);
         if (restartButton != null) restartButton.SetActive(false);
         if (nextLevelButton != null) nextLevelButton.SetActive(false);
-        if (menuButton != null) menuButton.SetActive(false); // ДОБАВЛЕНО: скрытие кнопки меню
+        if (menuButton != null) menuButton.SetActive(false);
 
         HideAllStars();
 
@@ -456,19 +455,19 @@ public class GameManager : MonoBehaviour
             audioSource.PlayOneShot(winSound, soundVolume);
         }
 
-        // ИСПРАВЛЕНИЕ: Используем правильный логический индекс
-        if (starManager != null)
+        // ИСПРАВЛЕНО: Используем правильный логический индекс
+        if (starManager != null && currentLevelIndex >= 0)
         {
             int previousStars = starManager.GetLevelStars(currentLevelIndex);
             starManager.SetLevelStars(currentLevelIndex, stars);
 
             if (stars > previousStars)
             {
-                Debug.Log($"[GameManager] Новый рекорд! Уровень {currentLevelIndex + 1}: {stars} звезд (было {previousStars})");
+                Debug.Log($"[GameManager] Новый рекорд! Уровень {currentLevelIndex} (Уровень #{currentLevelIndex + 1}): {stars} звезд (было {previousStars})");
             }
             else
             {
-                Debug.Log($"[GameManager] Уровень {currentLevelIndex + 1} пройден на {stars} звезд (рекорд: {previousStars})");
+                Debug.Log($"[GameManager] Уровень {currentLevelIndex} (Уровень #{currentLevelIndex + 1}) пройден на {stars} звезд (рекорд: {previousStars})");
             }
         }
 
@@ -480,13 +479,11 @@ public class GameManager : MonoBehaviour
         bool hasNextLevel = HasNextLevel();
         bool nextLevelUnlocked = starManager != null ? starManager.IsLevelUnlocked(currentLevelIndex + 1) : true;
 
-        // ДОБАВЛЕНО: Логика показа кнопок
         bool showNextButton = hasNextLevel && nextLevelUnlocked;
 
         if (nextLevelButton != null)
             nextLevelButton.SetActive(showNextButton);
 
-        // Показываем кнопку меню, если кнопка следующего уровня не показывается
         if (menuButton != null)
             menuButton.SetActive(!showNextButton);
 
@@ -496,7 +493,7 @@ public class GameManager : MonoBehaviour
                 uiRootBinder._nextLevelButton.SetActive(showNextButton);
 
             if (uiRootBinder._mainMenuButton != null)
-                uiRootBinder._mainMenuButton.SetActive(!showNextButton); // ИЗМЕНЕНО: показываем только если нет кнопки следующего уровня
+                uiRootBinder._mainMenuButton.SetActive(!showNextButton);
         }
 
         ShowStars(stars);
@@ -513,7 +510,7 @@ public class GameManager : MonoBehaviour
             losePanel.SetActive(true);
 
         if (nextLevelButton != null) nextLevelButton.SetActive(false);
-        if (menuButton != null) menuButton.SetActive(false); // ДОБАВЛЕНО: скрытие при поражении
+        if (menuButton != null) menuButton.SetActive(false);
 
         if (uiRootBinder != null)
         {
@@ -524,7 +521,7 @@ public class GameManager : MonoBehaviour
         HideAllStars();
         StartCoroutine(RestartLevelAfterDelay(restartDelay));
 
-        Debug.Log($"[GameManager] Уровень {currentLevelIndex + 1} провален. Причины: {string.Join(", ", loseReasons)}");
+        Debug.Log($"[GameManager] Уровень {currentLevelIndex} (Уровень #{currentLevelIndex + 1}) провален. Причины: {string.Join(", ", loseReasons)}");
     }
 
     private IEnumerator RestartLevelAfterDelay(float delay)
@@ -552,9 +549,9 @@ public class GameManager : MonoBehaviour
             levelManager.StopAllLevelProcesses();
         }
 
-        Debug.Log($"[GameManager] Перезапуск уровня {currentLevelIndex + 1} (сцена {currentSceneBuildIndex})");
+        Debug.Log($"[GameManager] Перезапуск уровня {currentLevelIndex} (Уровень #{currentLevelIndex + 1}, сцена {currentSceneBuildIndex})");
 
-        // ИСПРАВЛЕНИЕ: Перезапускаем текущую сцену
+        // Перезапускаем текущую сцену
         SceneManager.LoadScene(currentSceneBuildIndex);
     }
 
@@ -569,13 +566,13 @@ public class GameManager : MonoBehaviour
         // Проверяем существование сцены
         if (nextSceneBuildIndex < SceneManager.sceneCountInBuildSettings)
         {
-            Debug.Log($"[GameManager] Переход на уровень {nextLogicalLevel + 1} (сцена {nextSceneBuildIndex})");
+            Debug.Log($"[GameManager] Переход на уровень {nextLogicalLevel} (Уровень #{nextLogicalLevel + 1}, сцена {nextSceneBuildIndex})");
             SceneManager.LoadScene(nextSceneBuildIndex);
         }
         else
         {
             Debug.Log("[GameManager] Следующего уровня нет, возвращаемся в главное меню");
-            SceneManager.LoadScene(1); // главное меню
+            LoadMainMenu();
         }
 
         if (starManager != null && !starManager.IsLevelAvailable(nextLogicalLevel))
@@ -590,9 +587,7 @@ public class GameManager : MonoBehaviour
                 reason = " (еще не разблокирован)";
             }
 
-            Debug.LogWarning($"[GameManager] Уровень {nextLogicalLevel + 1} недоступен{reason}");
-
-            // Возвращаемся в главное меню вместо перехода на недоступный уровень
+            Debug.LogWarning($"[GameManager] Уровень {nextLogicalLevel} (Уровень #{nextLogicalLevel + 1}) недоступен{reason}");
             LoadMainMenu();
             return;
         }
@@ -610,8 +605,6 @@ public class GameManager : MonoBehaviour
         if (starManager == null) return true;
 
         int nextLogicalLevel = currentLevelIndex + 1;
-
-        // Используем новый метод IsLevelAvailable вместо IsLevelUnlocked
         return starManager.IsLevelAvailable(nextLogicalLevel);
     }
 
@@ -654,7 +647,7 @@ public class GameManager : MonoBehaviour
     public void DebugShowCurrentIndexes()
     {
         Debug.Log($"[GameManager] Текущая сцена: {currentSceneBuildIndex}");
-        Debug.Log($"[GameManager] Логический уровень: {currentLevelIndex + 1}");
+        Debug.Log($"[GameManager] Логический уровень: {currentLevelIndex} (отображается как Уровень #{currentLevelIndex + 1})");
         Debug.Log($"[GameManager] Является ли сцена уровнем: {IsCurrentSceneLevel()}");
         Debug.Log($"[GameManager] Первый уровень в Build Settings: {firstLevelBuildIndex}");
     }
@@ -666,7 +659,7 @@ public class GameManager : MonoBehaviour
         {
             int stars = starManager.GetLevelStars(currentLevelIndex);
             bool unlocked = starManager.IsLevelUnlocked(currentLevelIndex);
-            Debug.Log($"Уровень {currentLevelIndex + 1}: {stars} звезд, " + (unlocked ? "разблокирован" : "заблокирован"));
+            Debug.Log($"Уровень {currentLevelIndex} (Уровень #{currentLevelIndex + 1}): {stars} звезд, " + (unlocked ? "разблокирован" : "заблокирован"));
         }
     }
 
@@ -683,7 +676,7 @@ public class GameManager : MonoBehaviour
             {
                 LevelProgress level = progress.levels[i];
                 string status = level.isUnlocked ? "🔓" : "🔒";
-                Debug.Log($"Уровень {i + 1}: {level.stars} звезд {status}");
+                Debug.Log($"Уровень {i} (Уровень #{i + 1}): {level.stars} звезд {status}");
             }
         }
     }

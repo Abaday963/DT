@@ -63,11 +63,13 @@ public class GameEntryPoint
                sceneName == Scenes.LEVEL3 ||
                sceneName == Scenes.LEVEL4 ||
                sceneName == Scenes.LEVEL5 ||
+               sceneName == Scenes.LEVEL5_1 ||
                sceneName == Scenes.LEVEL6 ||
                sceneName == Scenes.LEVEL7 ||
                sceneName == Scenes.LEVEL8 ||
                sceneName == Scenes.LEVEL9 ||
-               sceneName == Scenes.LEVEL10;
+               sceneName == Scenes.LEVEL10 ||
+               sceneName == Scenes.LEVEL10_1;
     }
 
     // Загружает указанный уровень
@@ -108,6 +110,8 @@ public class GameEntryPoint
             case Scenes.LEVEL4:
                 return Scenes.LEVEL5;
             case Scenes.LEVEL5:
+                return null;
+            case Scenes.LEVEL5_1:
                 return Scenes.LEVEL6;
             case Scenes.LEVEL6:
                 return Scenes.LEVEL7;
@@ -117,6 +121,8 @@ public class GameEntryPoint
                 return Scenes.LEVEL9;
             case Scenes.LEVEL9:
                 return Scenes.LEVEL10;
+            case Scenes.LEVEL10:
+                return Scenes.LEVEL10_1;
             default:
                 return null; // После последнего уровня возвращаем null
         }
@@ -168,7 +174,7 @@ public class GameEntryPoint
         // Ждем только если это НЕ первый запуск
         if (!_isFirstLaunch)
         {
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(1.25f);
         }
 
         var sceneEntryPoint = Object.FindFirstObjectByType<MainMenuEntryPoint>();

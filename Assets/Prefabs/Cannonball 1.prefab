@@ -274,7 +274,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -6373722207386298994, guid: f0fbb4cae584fb2428fafa6b012ade17, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.26603764, g: 0.8043395, b: 0.8867924, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -418,16 +418,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22820e56e35d9f14d98d562540eef22a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBulletBoss
-  speed: 5
-  towardSpeed: 8
+  speed: 0.05
   lifetime: 10
   bulletPattern: 0
-  arcHeight: 2
-  zigzagAmplitude: 1
-  zigzagFrequency: 2
-  zigzacArcHeight: 2
+  arcHeight: 15
+  zigzagAmplitude: 2
+  zigzagFrequency: 15
   rotateTowardsDirection: 1
-  bulletFront: {fileID: 0}
+  bulletFront: {fileID: 6749640340508167810}
   showCurrentPattern: 1
 --- !u!1 &5570638118109135843
 GameObject:

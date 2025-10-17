@@ -18,10 +18,12 @@ public class MolotovAmmunition : MonoBehaviour, IAmmunition, IProjectile
     private Transform spriteTransform; // Ссылка на трансформ с спрайтом
 
     // Компоненты взрыва
+    [Header("Компоненты взрыва")]
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] private float explosionDuration = 3f;
 
     // Осколки огня
+    [Header("Осколки огня")]
     [SerializeField] private GameObject fireShardPrefab; // Префаб осколка огня
     [SerializeField] private int fireShardCount = 5; // Количество осколков
     [SerializeField] private float fireShardDistance = 1.2f; // Расстояние между осколками

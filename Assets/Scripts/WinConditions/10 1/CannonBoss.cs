@@ -1,19 +1,20 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class CannonBoss : MonoBehaviour
 {
     [Header("Настройки стрельбы")]
-    public GameObject bulletPrefab; // Префаб пули
+    public GameObject bulletPrefab; // Префаб пули босса
     public Transform firePoint; // Точка выстрела
 
-    [Header("Первая фаза")]
+    [Header("Фаза 1 - настройки")]
     public float phase1FireRate = 1.5f; // Быстрая стрельба в первой фазе
-    public float phase1BigDelayRate = 5f; // Большая задержка после каждого 3-го выстрела
+    public float phase1BigDelayEvery = 3; // Каждый третий выстрел
+    public float phase1BigDelay = 5f; // Большая задержка после каждого третьего
 
-    [Header("Вторая фаза")]
-    public float phase2AttackCooldown = 3f; // Время между атаками во второй фазе
-    public float phase2PlayerAttackWindow = 2f; // Окно для атак игрока
+    [Header("Фаза 2 - настройки")]
+    public float phase2DelayBetweenAttacks = 3f; // Задержка между атаками во второй фазе
 
     [Header("Эффекты")]
     public GameObject fireEffectPrefab; // Префаб эффекта выстрела
@@ -24,38 +25,50 @@ public class CannonBoss : MonoBehaviour
     public AudioClip fireSound; // Звук выстрела
 
     [Header("Настройки здоровья")]
-    public int maxHealth = 16; // 16 попаданий для уничтожения
+    public int maxHealth = 16; // 16 попаданий для победы
     private int currentHealth;
-    private bool isPhase2 = false;
+
+    [Header("UI Здоровья")]
+    public Slider healthSlider; // Слайдер для отображения HP
+    public GameObject healthBarCanvas; // Canvas с полоской HP (опционально)
 
     [Header("Анимация")]
     public Animator animator;
 
     [Header("Поворот дула")]
     public Transform cannonBarrel; // Дуло пушки для поворота
-    public float aimingDelay = 0.5f; // Уменьшенная задержка для быстрых атак
+    public float aimingDelay = 0.5f; // Задержка между прицеливанием и выстрелом
+
+    [Header("Переход фаз")]
+    public float phaseTransitionDelay = 2f; // Задержка при переходе фаз
+    public Color phase2Color = Color.red; // Цвет спрайта во второй фазе
+    public float colorTransitionDuration = 1f; // Время изменения цвета
+
+    // Ссылки на компоненты
+    private CameraShake cameraShake;
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor; // Исходный цвет спрайта
+
+    // Состояние босса
+    private enum BossPhase { Phase1, Phase2 }
+    private BossPhase currentPhase = BossPhase.Phase1;
+    private bool isTransitioningPhase = false; // Флаг перехода фаз
 
     private float nextFireTime = 0f;
     private Transform targetBase; // Цель для стрельбы
-    private BulletPattern nextBulletPattern; // Следующий паттерн пули
+    private BulletPattern nextBulletPattern;
 
-    // Переменные для первой фазы
-    private int shotsInCurrentBurst = 0;
+    // Счетчики для первой фазы
+    private int shotCounter = 0;
 
-    // Переменные для второй фазы
-    private bool isExecutingAttackPattern = false;
-
-    // Enum для новых паттернов второй фазы
-    public enum Phase2AttackPattern
-    {
-        QuickArcQuick,        // Быстрая -> дуговая -> быстрая
-        CirclingCombination,  // Кружащая -> быстрая -> кружащая  
-        ComplexSequence       // Медленная дребезжащая -> прямая дребезжащая -> быстрая дуговая
-    }
+    // Паттерны атак для второй фазы
+    private enum Phase2AttackPattern { FastCombo, CirclingCombo, ComplexCombo }
 
     void Start()
     {
         currentHealth = maxHealth;
+        InitializeHealthUI();
+
         // Находим базу игрока по тегу
         GameObject playerBase = GameObject.FindGameObjectWithTag("PlayerBase");
         if (playerBase != null)
@@ -64,11 +77,6 @@ public class CannonBoss : MonoBehaviour
         }
 
         // Инициализация компонентов
-        InitializeComponents();
-    }
-
-    void InitializeComponents()
-    {
         if (animator == null)
             animator = GetComponent<Animator>();
 
@@ -77,175 +85,227 @@ public class CannonBoss : MonoBehaviour
 
         if (cannonBarrel == null)
             cannonBarrel = firePoint;
+
+        // Инициализация новых компонентов
+        InitializeNewComponents();
+
+        Debug.Log("Босс запущен! Фаза 1 активна");
+    }
+
+    void InitializeNewComponents()
+    {
+        // Найти компонент CameraShake
+        cameraShake = FindObjectOfType<CameraShake>();
+        if (cameraShake == null)
+        {
+            Debug.LogWarning("CameraShake компонент не найден! Добавьте его на камеру.");
+        }
+
+        // Получить SpriteRenderer
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
+
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
+        else
+        {
+            Debug.LogWarning("SpriteRenderer не найден! Изменение цвета не будет работать.");
+        }
+    }
+
+    void InitializeHealthUI()
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = currentHealth;
+        }
+
+        // Показываем UI здоровья при появлении босса
+        if (healthBarCanvas != null)
+        {
+            healthBarCanvas.SetActive(true);
+        }
+    }
+
+    void UpdateHealthUI()
+    {
+        if (healthSlider != null)
+        {
+            // Плавное обновление слайдера
+            StartCoroutine(SmoothUpdateHealthSlider());
+        }
+    }
+
+    IEnumerator SmoothUpdateHealthSlider()
+    {
+        float targetValue = currentHealth; // Используем абсолютное значение
+        float currentValue = healthSlider.value;
+        float duration = 0.3f; // Время анимации
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            healthSlider.value = Mathf.Lerp(currentValue, targetValue, t);
+            yield return null;
+        }
+
+        healthSlider.value = targetValue;
     }
 
     void Update()
     {
-        if (targetBase == null) return;
+        if (targetBase == null || isTransitioningPhase) return;
 
-        if (!isPhase2)
+        switch (currentPhase)
         {
-            HandlePhase1();
-        }
-        else
-        {
-            HandlePhase2();
+            case BossPhase.Phase1:
+                HandlePhase1();
+                break;
+            case BossPhase.Phase2:
+                HandlePhase2();
+                break;
         }
     }
 
     void HandlePhase1()
     {
-        if (Time.time >= nextFireTime && !isExecutingAttackPattern)
+        if (Time.time >= nextFireTime)
         {
-            StartCoroutine(Phase1Attack());
+            shotCounter++;
+
+            // Каждый третий выстрел - большая задержка
+            if (shotCounter % phase1BigDelayEvery == 0)
+            {
+                StartCoroutine(Phase1BigDelayAttack());
+                nextFireTime = Time.time + phase1BigDelay;
+            }
+            else
+            {
+                // Обычная быстрая атака
+                StartAimingPhase1();
+                nextFireTime = Time.time + phase1FireRate;
+            }
         }
     }
 
     void HandlePhase2()
     {
-        if (Time.time >= nextFireTime && !isExecutingAttackPattern)
+        if (Time.time >= nextFireTime)
         {
             StartCoroutine(ExecutePhase2Attack());
+            nextFireTime = Time.time + phase2DelayBetweenAttacks;
         }
     }
 
-    IEnumerator Phase1Attack()
+    IEnumerator Phase1BigDelayAttack()
     {
-        isExecutingAttackPattern = true;
-        shotsInCurrentBurst++;
+        Debug.Log("Большая задержка после 3-го выстрела!");
+        StartAimingPhase1();
+        yield return new WaitForSeconds(phase1BigDelay);
+    }
 
-        // Определяем паттерн для первой фазы
+    void StartAimingPhase1()
+    {
+        // В первой фазе используем базовые паттерны
         BulletPattern[] phase1Patterns = { BulletPattern.Straight, BulletPattern.Arc, BulletPattern.ZigzagArc };
         nextBulletPattern = phase1Patterns[Random.Range(0, phase1Patterns.Length)];
 
-        // Быстрое прицеливание и выстрел
-        yield return StartCoroutine(AimAndFire(0.3f)); // Быстрое прицеливание
+        float targetRotationZ = GetBarrelRotationForPattern(nextBulletPattern);
+        cannonBarrel.localEulerAngles = new Vector3(0, 0, targetRotationZ);
 
-        // Проверяем, нужна ли большая задержка после каждого 3-го выстрела
-        if (shotsInCurrentBurst >= 3)
-        {
-            shotsInCurrentBurst = 0;
-            nextFireTime = Time.time + phase1BigDelayRate; // 5-секундная задержка
-        }
-        else
-        {
-            nextFireTime = Time.time + phase1FireRate; // Обычная задержка
-        }
-
-        isExecutingAttackPattern = false;
+        StartCoroutine(DelayedFire());
     }
 
     IEnumerator ExecutePhase2Attack()
     {
-        isExecutingAttackPattern = true;
-
-        // Выбираем случайный паттерн атаки для второй фазы
         Phase2AttackPattern attackPattern = (Phase2AttackPattern)Random.Range(0, 3);
+        Debug.Log($"Фаза 2: Выполняется атака паттерн {attackPattern}");
 
         switch (attackPattern)
         {
-            case Phase2AttackPattern.QuickArcQuick:
-                yield return StartCoroutine(QuickArcQuickAttack());
+            case Phase2AttackPattern.FastCombo:
+                yield return StartCoroutine(FastComboAttack());
                 break;
-            case Phase2AttackPattern.CirclingCombination:
-                yield return StartCoroutine(CirclingCombinationAttack());
+            case Phase2AttackPattern.CirclingCombo:
+                yield return StartCoroutine(CirclingComboAttack());
                 break;
-            case Phase2AttackPattern.ComplexSequence:
-                yield return StartCoroutine(ComplexSequenceAttack());
+            case Phase2AttackPattern.ComplexCombo:
+                yield return StartCoroutine(ComplexComboAttack());
                 break;
         }
-
-        // Окно для атак игрока
-        yield return new WaitForSeconds(phase2PlayerAttackWindow);
-
-        nextFireTime = Time.time + phase2AttackCooldown;
-        isExecutingAttackPattern = false;
     }
 
-    // Паттерн 1: Быстрая -> длинная дуговая -> быстрая
-    IEnumerator QuickArcQuickAttack()
+    // Паттерн 1: Быстрая прямая + длинная дуга + быстрая прямая + пауза
+    IEnumerator FastComboAttack()
     {
-        // Быстрая атака
-        nextBulletPattern = BulletPattern.Straight;
-        yield return StartCoroutine(AimAndFire(0.2f, 1.5f)); // Быстрая пуля
+        Debug.Log("Фаза 2: Быстрая комбо атака!");
 
+        // Быстрая прямая
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.Straight, 12f, 0.2f));
         yield return new WaitForSeconds(0.3f);
 
         // Длинная дуговая
-        nextBulletPattern = BulletPattern.Arc;
-        yield return StartCoroutine(AimAndFire(0.5f, 0.8f)); // Медленная дуговая
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.Arc, 6f, 0.4f));
+        yield return new WaitForSeconds(0.5f);
 
-        yield return new WaitForSeconds(0.3f);
+        // Вторая быстрая прямая
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.Straight, 12f, 0.2f));
 
-        // Вторая быстрая
-        nextBulletPattern = BulletPattern.Straight;
-        yield return StartCoroutine(AimAndFire(0.2f, 1.5f));
+        Debug.Log("Быстрая комбо завершена - окно для атаки игрока!");
     }
 
-    // Паттерн 2: Кружащая -> быстрая -> кружащая
-    IEnumerator CirclingCombinationAttack()
+    // Паттерн 2: Кружащая + пауза + быстрая + кружащая
+    IEnumerator CirclingComboAttack()
     {
-        // Кружащая средняя с сильным дребезжанием
-        nextBulletPattern = BulletPattern.ZigzagArc;
-        yield return StartCoroutine(AimAndFire(0.4f, 1.0f, 2.0f)); // Среднее время, сильное дребезжание
+        Debug.Log("Фаза 2: Кружащая комбо атака!");
 
-        yield return new WaitForSeconds(0.8f); // Средное ожидание
+        // Кружащая средняя с сильным дребезжанием
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.ZigzagArc, 7f, 0.5f, 2f, 4f)); // Увеличенная амплитуда и частота
+        yield return new WaitForSeconds(1f); // Среднее ожидание
 
         // Быстрая атака
-        nextBulletPattern = BulletPattern.Straight;
-        yield return StartCoroutine(AimAndFire(0.2f, 1.5f));
-
-        yield return new WaitForSeconds(0.3f);
-
-        // Еще одна кружащая
-        nextBulletPattern = BulletPattern.ZigzagArc;
-        yield return StartCoroutine(AimAndFire(0.4f, 1.0f, 2.0f));
-    }
-
-    // Паттерн 3: Медленная дребезжащая -> прямая дребезжащая -> быстрая дуговая
-    IEnumerator ComplexSequenceAttack()
-    {
-        // Медленная дребезжащаяся средняя
-        nextBulletPattern = BulletPattern.ZigzagArc;
-        yield return StartCoroutine(AimAndFire(0.6f, 0.7f, 1.5f)); // Медленная с дребезжанием
-
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.Straight, 10f, 0.3f));
         yield return new WaitForSeconds(0.4f);
 
-        // Прямая дребезжащаяся (чуть медленнее обычной)
-        nextBulletPattern = BulletPattern.Straight; // Будем использовать зигзаг но с прямым углом
-        yield return StartCoroutine(AimAndFireZigzagStraight(0.5f, 0.9f, 1.2f));
+        // Еще одна кружащая
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.ZigzagArc, 7f, 0.5f, 2f, 4f));
+    }
 
+    // Паттерн 3: Сложная комбо (средняя медленная дребезжащая + дребезжащая прямая + быстрая дуга)
+    IEnumerator ComplexComboAttack()
+    {
+        Debug.Log("Фаза 2: Сложная комбо атака!");
+
+        // Средняя дребезжащая медленная
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.ZigzagArc, 4f, 0.8f, 1.5f, 3f));
+        yield return new WaitForSeconds(0.3f);
+
+        // Дребезжащая прямая чуть медленнее
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.ZigzagStraight, 6f, 0.6f, 1f, 2.5f));
         yield return new WaitForSeconds(0.2f);
 
         // Высокая дуговая очень быстрая
-        nextBulletPattern = BulletPattern.Arc;
-        yield return StartCoroutine(AimAndFire(0.1f, 2.0f)); // Очень быстрая
+        yield return StartCoroutine(FireBulletWithPattern(BulletPattern.Arc, 15f, 0.2f, 0f, 0f, 4f)); // Увеличенная высота дуги
     }
 
-    IEnumerator AimAndFire(float aimTime, float bulletSpeedMultiplier = 1.0f, float zigzagIntensity = 1.0f)
+    IEnumerator FireBulletWithPattern(BulletPattern pattern, float speed, float delay, float zigzagAmplitude = 1f, float zigzagFreq = 2f, float arcHeight = 2f)
     {
         // Поворачиваем дуло
-        float targetRotationZ = GetBarrelRotationForPattern(nextBulletPattern);
+        float targetRotationZ = GetBarrelRotationForPattern(pattern);
         cannonBarrel.localEulerAngles = new Vector3(0, 0, targetRotationZ);
 
-        // Задержка прицеливания
-        yield return new WaitForSeconds(aimTime);
+        yield return new WaitForSeconds(delay);
 
         // Стреляем
-        Fire(bulletSpeedMultiplier, zigzagIntensity);
-    }
-
-    // Специальный метод для прямого зигзага
-    IEnumerator AimAndFireZigzagStraight(float aimTime, float bulletSpeedMultiplier, float zigzagIntensity)
-    {
-        // Поворачиваем дуло прямо (0 градусов)
-        cannonBarrel.localEulerAngles = new Vector3(0, 0, 0);
-
-        yield return new WaitForSeconds(aimTime);
-
-        // Стреляем зигзагом но прямо
-        nextBulletPattern = BulletPattern.ZigzagArc;
-        Fire(bulletSpeedMultiplier, zigzagIntensity);
+        Fire(pattern, speed, zigzagAmplitude, zigzagFreq, arcHeight);
     }
 
     float GetBarrelRotationForPattern(BulletPattern pattern)
@@ -253,45 +313,73 @@ public class CannonBoss : MonoBehaviour
         switch (pattern)
         {
             case BulletPattern.Straight:
-                return 0f; // Прямо
+                return 0f;
             case BulletPattern.Arc:
-                return -70f; // Вверх
+                return -70f;
             case BulletPattern.ZigzagArc:
-                return -40f; // Зигзаг
+                return -40f;
+            case BulletPattern.ZigzagStraight:
+                return 0f;
             default:
                 return 0f;
         }
     }
 
-    void Fire(float speedMultiplier = 1.0f, float zigzagIntensity = 1.0f)
+    System.Collections.IEnumerator DelayedFire()
     {
-        // Воспроизводим звук выстрела
+        yield return new WaitForSeconds(aimingDelay);
+        Fire();
+    }
+
+    void Fire()
+    {
+        // Обычная стрельба для фазы 1
         PlayFireSound();
 
-        // Запускаем анимацию выстрела
         if (animator != null)
-        {
             animator.SetTrigger("Fire");
-        }
 
-        // Создаем эффект выстрела
         CreateFireEffect();
 
-        // Создаем пулю
         if (bulletPrefab != null && firePoint != null)
         {
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-
-            // Передаем цель пуле и устанавливаем паттерн
             EnemyBulletBoss bulletScript = bullet.GetComponent<EnemyBulletBoss>();
             if (bulletScript != null)
             {
                 bulletScript.SetTarget(targetBase);
                 bulletScript.SetBulletPattern(nextBulletPattern);
 
-                // Устанавливаем модификаторы скорости и интенсивности зигзага
-                bulletScript.SetSpeedMultiplier(speedMultiplier);
-                bulletScript.SetZigzagIntensity(zigzagIntensity);
+                // В первой фазе пули быстрее
+                if (currentPhase == BossPhase.Phase1)
+                {
+                    bulletScript.SetSpeed(10f); // Увеличенная скорость для фазы 1
+                }
+            }
+        }
+    }
+
+    void Fire(BulletPattern pattern, float speed, float zigzagAmplitude = 1f, float zigzagFreq = 2f, float arcHeight = 2f)
+    {
+        // Продвинутая стрельба для фазы 2
+        PlayFireSound();
+
+        if (animator != null)
+            animator.SetTrigger("Fire");
+
+        CreateFireEffect();
+
+        if (bulletPrefab != null && firePoint != null)
+        {
+            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+            EnemyBulletBoss bulletScript = bullet.GetComponent<EnemyBulletBoss>();
+            if (bulletScript != null)
+            {
+                bulletScript.SetTarget(targetBase);
+                bulletScript.SetBulletPattern(pattern);
+                bulletScript.SetSpeed(speed);
+                bulletScript.SetZigzagSettings(zigzagAmplitude, zigzagFreq);
+                bulletScript.SetArcHeight(arcHeight);
             }
         }
     }
@@ -331,71 +419,129 @@ public class CannonBoss : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    public void TakeDamage(int damage, string damageTag)
     {
-        if (other.CompareTag("Fire shard"))
+        // Принимаем урон только от объектов с тегом "Fire shard"
+        if (damageTag == "Fire shard")
         {
-            TakeDamage(1);
-            Destroy(other.gameObject); // Уничтожаем снаряд игрока
+            currentHealth -= damage;
+            Debug.Log($"Босс получил урон! Здоровье: {currentHealth}/{maxHealth}");
+
+            // Обновляем UI здоровья
+            UpdateHealthUI();
+
+            // Переход во вторую фазу при половине здоровья
+            if (currentHealth == maxHealth / 2 && currentPhase == BossPhase.Phase1 && !isTransitioningPhase)
+            {
+                StartCoroutine(StartPhase2Transition());
+            }
+
+            if (currentHealth <= 0)
+            {
+                Die();
+            }
         }
     }
 
-    public void TakeDamage(int damage)
+    IEnumerator StartPhase2Transition()
     {
-        currentHealth -= damage;
+        isTransitioningPhase = true;
 
-        // Проверяем переход во вторую фазу (ровно половина здоровья)
-        if (currentHealth == maxHealth / 2 && !isPhase2)
+        Debug.Log("НАЧИНАЕТСЯ ПЕРЕХОД ВО ВТОРУЮ ФАЗУ!");
+
+        // Запускаем тряску камеры на все 2 секунды
+        if (cameraShake != null)
         {
-            EnterPhase2();
+            cameraShake.StartShake(phaseTransitionDelay, 0.15f);
         }
 
-        if (currentHealth <= 0)
+        // Ждем заданное время
+        yield return new WaitForSeconds(phaseTransitionDelay);
+
+        // Переходим во вторую фазу
+        currentPhase = BossPhase.Phase2;
+
+        // Изменяем цвет спрайта
+        if (spriteRenderer != null)
         {
-            Die();
+            StartCoroutine(ChangeColorCoroutine());
         }
 
-        Debug.Log($"Boss Health: {currentHealth}/{maxHealth}");
+        Debug.Log("ПЕРЕХОД ВО ВТОРУЮ ФАЗУ ЗАВЕРШЕН! Босс становится более агрессивным!");
+
+        // Сбрасываем таймер для немедленного начала новых атак
+        nextFireTime = Time.time + 1f;
+
+        isTransitioningPhase = false;
     }
 
-    void EnterPhase2()
+    IEnumerator ChangeColorCoroutine()
     {
-        isPhase2 = true;
-        Debug.Log("Босс переходит во вторую фазу!");
+        float elapsed = 0f;
+        Color startColor = spriteRenderer.color;
 
-        // Сбрасываем текущие атаки
-        StopAllCoroutines();
-        isExecutingAttackPattern = false;
-        nextFireTime = Time.time + 1f; // Небольшая задержка перед началом второй фазы
-
-        // Можно добавить визуальные/звуковые эффекты перехода фазы
-        if (animator != null)
+        while (elapsed < colorTransitionDuration)
         {
-            animator.SetTrigger("Phase2Start");
+            elapsed += Time.deltaTime;
+            float t = elapsed / colorTransitionDuration;
+            spriteRenderer.color = Color.Lerp(startColor, phase2Color, t);
+            yield return null;
         }
+
+        spriteRenderer.color = phase2Color;
     }
 
     void Die()
     {
         Debug.Log("Босс побежден!");
-        // Логика смерти босса - можно добавить эффекты, награды и т.д.
+
+        // Скрываем UI здоровья
+        if (healthBarCanvas != null)
+        {
+            healthBarCanvas.SetActive(false);
+        }
+
+        // Можно добавить эффекты смерти, дроп лута и т.д.
         Destroy(gameObject);
     }
 
-    // Метод для анимационного события
-    public void OnFireAnimationComplete()
+    void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Анимация выстрела завершена");
+        if (other.CompareTag("Fire shard"))
+        {
+            TakeDamage(1, "Fire shard");
+            // Уничтожаем снаряд который попал в босса
+            Destroy(other.gameObject);
+        }
     }
 
-    // Дополнительные методы для отладки
-    void OnDrawGizmosSelected()
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        // Показываем здоровье босса в Scene view
-        if (Application.isPlaying)
+        if (collision.gameObject.CompareTag("Fire shard"))
         {
-            Gizmos.color = isPhase2 ? Color.red : Color.yellow;
-            Gizmos.DrawWireSphere(transform.position + Vector3.up * 2, 0.5f);
+            TakeDamage(1, "Fire shard");
+            Destroy(collision.gameObject);
         }
+    }
+
+    public void OnFireAnimationComplete()
+    {
+        Debug.Log("Анимация выстрела босса завершена");
+    }
+
+    // Публичные методы для доступа к информации о здоровье
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    public int GetMaxHealth()
+    {
+        return maxHealth;
+    }
+
+    public float GetHealthPercentage()
+    {
+        return (float)currentHealth / maxHealth;
     }
 }

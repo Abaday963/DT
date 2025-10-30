@@ -11,10 +11,16 @@ public class TimerTargetHitCondition : WinCondition
     [Header("Настройки таймера")]
     [SerializeField] private TimerSlider levelTimer; // Ссылка на таймер уровня
 
+    [Header("UI")]
+    [SerializeField] private TargetHitCounter hitCounter; // Ссылка на счетчик попаданий
+
     // Внутренние переменные
     private int currentHits = 0;
     private List<Transform> hitTargets = new List<Transform>();
     private int starsEarned = 0;
+
+    // Публичное свойство для доступа к requiredTargetHits
+    public int RequiredTargetHits => requiredTargetHits;
 
     private void Awake()
     {
@@ -45,6 +51,18 @@ public class TimerTargetHitCondition : WinCondition
             else
                 Debug.LogWarning("Таймер уровня не найден!");
         }
+
+        // Найти счетчик попаданий, если не задан вручную
+        if (hitCounter == null)
+        {
+            hitCounter = FindObjectOfType<TargetHitCounter>();
+        }
+
+        // Обновить счетчик при старте
+        if (hitCounter != null)
+        {
+            hitCounter.UpdateCounter(currentHits, requiredTargetHits);
+        }
     }
 
     // Вызывается, когда игрок попадает в цель
@@ -59,6 +77,12 @@ public class TimerTargetHitCondition : WinCondition
             currentHits++;
 
             Debug.Log($"Попадание в цель! {currentHits}/{requiredTargetHits}");
+
+            // Обновить счетчик попаданий
+            if (hitCounter != null)
+            {
+                hitCounter.UpdateCounter(currentHits, requiredTargetHits);
+            }
 
             // Определяем количество звезд в зависимости от текущего состояния таймера
             if (levelTimer != null)
@@ -131,6 +155,12 @@ public class TimerTargetHitCondition : WinCondition
         currentHits = 0;
         hitTargets.Clear();
         starsEarned = 0;
+
+        // Обновить счетчик при сбросе
+        if (hitCounter != null)
+        {
+            hitCounter.UpdateCounter(currentHits, requiredTargetHits);
+        }
     }
 }
 
@@ -142,3 +172,42 @@ public enum TimerState
     Red,    // Оставшееся время
     Expired // Время вышло
 }
+
+// ========================================
+// ОТДЕЛЬНЫЙ ФАЙЛ: TargetHitCounter.cs
+// ========================================
+
+/*
+using UnityEngine;
+using TMPro;
+
+public class TargetHitCounter : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI counterText;
+    [SerializeField] private TimerTargetHitCondition targetCondition;
+
+    private void Start()
+    {
+        // Автоматически найти компоненты, если не заданы
+        if (counterText == null)
+        {
+            counterText = GetComponent<TextMeshProUGUI>();
+        }
+
+        if (targetCondition == null)
+        {
+            targetCondition = FindObjectOfType<TimerTargetHitCondition>();
+        }
+
+        UpdateCounter(0, targetCondition != null ? targetCondition.RequiredTargetHits : 0);
+    }
+
+    public void UpdateCounter(int current, int required)
+    {
+        if (counterText != null)
+        {
+            counterText.text = $"{current}/{required}";
+        }
+    }
+}
+*/

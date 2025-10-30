@@ -950,11 +950,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6132052427728110599, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 14.84
+      value: 19.1
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110599, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 16.4
+      value: 18.4
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110599, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -994,7 +994,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110840, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: orthographic size
-      value: 12
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110840, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_BackGroundColor.b

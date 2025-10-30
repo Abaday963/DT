@@ -1,0 +1,16 @@
+{
+    "intExample": 5,
+    "strExample": "Hello!",
+    "boolExample": [
+        false,
+        false,
+        false,
+        false
+    ],
+    "idSave": 50,
+    "levelStars": [],
+    "totalStars": 0,
+    "unlockedLevels": 1,
+    "lastSaveTime": "2025-10-28 13:11:57",
+    "GameProgress": "{\"levels\":[{\"levelIndex\":0,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":0,\"isSpecialLevel\":false},{\"levelIndex\":1,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":0,\"isSpecialLevel\":false},{\"levelIndex\":2,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":0,\"isSpecialLevel\":false},{\"levelIndex\":3,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":0,\"isSpecialLevel\":false},{\"levelIndex\":4,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":0,\"isSpecialLevel\":false},{\"levelIndex\":5,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":0,\"isSpecialLevel\":true},{\"levelIndex\":6,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":1,\"isSpecialLevel\":false},{\"levelIndex\":7,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":1,\"isSpecialLevel\":false},{\"levelIndex\":8,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":1,\"isSpecialLevel\":false},{\"levelIndex\":9,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":1,\"isSpecialLevel\":false},{\"levelIndex\":10,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":1,\"isSpecialLevel\":false},{\"levelIndex\":11,\"stars\":3,\"isUnlocked\":true,\"lineIndex\":1,\"isSpecialLevel\":true}],\"totalStars\":36}"
+}

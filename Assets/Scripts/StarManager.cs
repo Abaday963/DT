@@ -41,6 +41,7 @@ public class StarManager : MonoBehaviour
     private GameProgress gameProgress;
     private const string SAVE_KEY = "GameProgress";
     private bool isInitialized = false;
+    private bool hasLoadedOnce = false;
 
     public System.Action<int, int> OnLevelStarsUpdated;
     public System.Action<int> OnTotalStarsUpdated;
@@ -55,25 +56,55 @@ public class StarManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeProgress();
+
+            if (debugMode) Debug.Log("[StarManager] Instance создан");
         }
         else
         {
+            if (debugMode) Debug.Log("[StarManager] Уничтожаем дубликат");
             Destroy(gameObject);
         }
     }
 
     private void Start()
     {
-        YG2.onGetSDKData += LoadProgress;
-        LoadProgress();
+        if (debugMode) Debug.Log($"[StarManager] Start. SDK enabled: {YG2.isSDKEnabled}, Saves null: {YG2.saves == null}");
+
+        // Если SDK уже готов (например, после перезагрузки сцены)
+        if (YG2.isSDKEnabled && YG2.saves != null && !hasLoadedOnce)
+        {
+            if (debugMode) Debug.Log("[StarManager] SDK уже готов в Start, загружаем");
+            OnSDKReady();
+        }
     }
 
     private void OnDestroy()
     {
-        YG2.onGetSDKData -= LoadProgress;
-    }
+        // Отписываемся при уничтожении
+        YG2.onGetSDKData -= OnSDKReady;
 
+        if (debugMode) Debug.Log("[StarManager] Отписались от onGetSDKData");
+    }
+    private void OnEnable()
+    {
+        // Подписываемся при включении объекта
+        YG2.onGetSDKData += OnSDKReady;
+
+        if (debugMode) Debug.Log("[StarManager] Подписались на onGetSDKData");
+    }
+    private void OnSDKReady()
+    {
+        if (hasLoadedOnce)
+        {
+            if (debugMode) Debug.Log("[StarManager] SDK ready вызван повторно, пропускаем");
+            return;
+        }
+
+        if (debugMode) Debug.Log("[StarManager] ========== SDK READY! ==========");
+
+        hasLoadedOnce = true;
+        LoadProgress();
+    }
     private void InitializeProgress()
     {
         gameProgress = new GameProgress();
@@ -95,134 +126,136 @@ public class StarManager : MonoBehaviour
 
     public void LoadProgress()
     {
+        if (debugMode) Debug.Log("[StarManager] >>> LoadProgress вызван");
+
+        // КРИТИЧНО: Проверяем готовность SDK
         if (YG2.saves == null)
         {
-            if (debugMode) Debug.Log("[StarManager] SDK еще не готов");
+            if (debugMode) Debug.LogWarning("[StarManager] YG2.saves == null! SDK не готов");
+
+            // В билде пробуем подождать и повторить
+#if !UNITY_EDITOR
+        if (debugMode) Debug.Log("[StarManager] Пробуем повторить через 0.5 сек...");
+        Invoke(nameof(LoadProgress), 0.5f);
+#endif
+
             return;
         }
 
-        string savedData = "";
+        if (debugMode) Debug.Log($"[StarManager] SDK готов! isSDKEnabled: {YG2.isSDKEnabled}");
 
-        try
+        string savedData = YG2.saves.GameProgress;
+
+        if (debugMode)
         {
-            var savesType = YG2.saves.GetType();
-            var fields = savesType.GetFields();
-
-            foreach (var field in fields)
-            {
-                if (field.Name == SAVE_KEY && field.FieldType == typeof(string))
-                {
-                    savedData = (string)field.GetValue(YG2.saves);
-                    break;
-                }
-            }
-
             if (string.IsNullOrEmpty(savedData))
-            {
-                var props = savesType.GetProperties();
-                foreach (var prop in props)
-                {
-                    if (prop.Name == SAVE_KEY && prop.PropertyType == typeof(string))
-                    {
-                        savedData = (string)prop.GetValue(YG2.saves);
-                        break;
-                    }
-                }
-            }
+                Debug.Log("[StarManager] Сохраненных данных нет (первый запуск)");
+            else
+                Debug.Log($"[StarManager] Найдены данные: {savedData.Length} символов");
         }
-        catch { }
 
         if (!string.IsNullOrEmpty(savedData))
         {
             try
             {
                 gameProgress = JsonUtility.FromJson<GameProgress>(savedData);
-                if (gameProgress.levels.Count < totalLevelsCount)
-                {
-                    for (int i = gameProgress.levels.Count; i < totalLevelsCount; i++)
-                    {
-                        int lineIndex = i / levelsPerLine;
-                        int positionInLine = i % levelsPerLine;
-                        bool isSpecialLevel = (positionInLine == levelsPerLine - 1);
-                        bool isUnlocked = !isSpecialLevel;
 
-                        gameProgress.levels.Add(new LevelProgress(i, 0, isUnlocked, lineIndex, isSpecialLevel));
-                    }
+                if (debugMode)
+                    Debug.Log($"[StarManager] ✓ Десериализация OK. Уровней: {gameProgress.levels.Count}, Звезд: {gameProgress.totalStars}");
+
+                // Добавляем новые уровни если надо
+                while (gameProgress.levels.Count < totalLevelsCount)
+                {
+                    int i = gameProgress.levels.Count;
+                    int lineIndex = i / levelsPerLine;
+                    int positionInLine = i % levelsPerLine;
+                    bool isSpecialLevel = (positionInLine == levelsPerLine - 1);
+                    bool isUnlocked = !isSpecialLevel;
+
+                    gameProgress.levels.Add(new LevelProgress(i, 0, isUnlocked, lineIndex, isSpecialLevel));
                 }
 
                 RecalculateTotalStars();
-                CheckSpecialLevelsUnlock(); // Проверяем разблокировку специальных уровней
+                CheckSpecialLevelsUnlock();
                 isInitialized = true;
+
+                if (debugMode)
+                    Debug.Log($"[StarManager] ✅ Прогресс загружен! Звезд: {gameProgress.totalStars}");
+
                 OnProgressLoaded?.Invoke();
 
-                if (debugMode) Debug.Log($"[StarManager] Прогресс загружен: {gameProgress.totalStars} звезд");
+                // Обновляем UI через небольшую задержку
+                StartCoroutine(DelayedUIUpdate());
             }
-            catch
+            catch (System.Exception e)
             {
+                Debug.LogError($"[StarManager] ❌ Ошибка загрузки: {e.Message}");
                 InitializeProgress();
+                SaveProgress();
             }
         }
         else
         {
+            if (debugMode) Debug.Log("[StarManager] Первый запуск - создаем новый прогресс");
+
             InitializeProgress();
+            SaveProgress();
         }
     }
+    private System.Collections.IEnumerator DelayedUIUpdate()
+    {
+        yield return new WaitForSeconds(0.2f);
+        ForceUpdateAllDisplays();
 
+        if (debugMode) Debug.Log("[StarManager] UI обновлен");
+    }
     public void SaveProgress()
     {
         if (!isInitialized)
         {
-            if (debugMode) Debug.LogWarning("[StarManager] Попытка сохранения до инициализации");
+            if (debugMode) Debug.LogWarning("[StarManager] Пропускаем сохранение - не инициализирован");
             return;
         }
 
         if (YG2.saves == null)
         {
-            Debug.LogWarning("[StarManager] SDK не готов");
+            Debug.LogWarning("[StarManager] Пропускаем сохранение - YG2.saves == null");
             return;
         }
 
         try
         {
             string jsonData = JsonUtility.ToJson(gameProgress);
-            var savesType = YG2.saves.GetType();
-            bool saved = false;
 
-            foreach (var field in savesType.GetFields())
+            if (debugMode)
             {
-                if (field.Name == SAVE_KEY && field.FieldType == typeof(string))
-                {
-                    field.SetValue(YG2.saves, jsonData);
-                    saved = true;
-                    break;
-                }
+                Debug.Log($"[StarManager] Сохраняем: {gameProgress.totalStars} звезд");
+                Debug.Log($"[StarManager] JSON длина: {jsonData.Length} символов");
             }
 
-            if (!saved)
-            {
-                foreach (var prop in savesType.GetProperties())
-                {
-                    if (prop.Name == SAVE_KEY && prop.PropertyType == typeof(string) && prop.CanWrite)
-                    {
-                        prop.SetValue(YG2.saves, jsonData);
-                        saved = true;
-                        break;
-                    }
-                }
-            }
+            YG2.saves.GameProgress = jsonData;
+            YG2.saves.lastSaveTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            if (saved)
-            {
-                YG2.SaveProgress();
-                if (debugMode) Debug.Log($"[StarManager] Прогресс сохранен: {gameProgress.totalStars} звезд");
-            }
+            // КРИТИЧНО: Вызываем сохранение SDK
+            YG2.SaveProgress();
+
+            if (debugMode)
+                Debug.Log($"[StarManager] ✅ YG2.SaveProgress() вызван! Время: {YG2.saves.lastSaveTime}");
         }
         catch (System.Exception e)
         {
-            if (debugMode) Debug.LogError($"[StarManager] Ошибка сохранения: {e.Message}");
+            Debug.LogError($"[StarManager] ❌ Ошибка сохранения: {e.Message}");
         }
     }
+    private bool IsSDKReady()
+    {
+        bool ready = YG2.isSDKEnabled && YG2.saves != null;
 
+        if (!ready && debugMode)
+            Debug.LogWarning("[StarManager] SDK не готов. isSDKEnabled: " + YG2.isSDKEnabled);
+
+        return ready;
+    }
     public void SetLevelStars(int levelIndex, int stars)
     {
         if (!isInitialized)
@@ -247,34 +280,37 @@ public class StarManager : MonoBehaviour
         LevelProgress level = gameProgress.levels[levelIndex];
         int oldStars = level.stars;
 
+        // ⭐ КРИТИЧНО: Сохраняем только если новый результат ЛУЧШЕ
+        if (stars <= oldStars)
+        {
+            if (debugMode)
+            {
+                string levelType = level.isSpecialLevel ? "специальный" : "обычный";
+                Debug.Log($"[StarManager] {levelType} уровень {levelIndex + 1}: результат {stars} не лучше текущего {oldStars}, пропускаем");
+            }
+            return; // Не перезаписываем лучший результат!
+        }
+
         if (debugMode)
         {
             string levelType = level.isSpecialLevel ? "специальный" : "обычный";
-            Debug.Log($"[StarManager] Установка звезд для {levelType} уровня {levelIndex + 1} (линия {level.lineIndex + 1}): {oldStars} -> {stars}");
+            Debug.Log($"[StarManager] Улучшен результат {levelType} уровня {levelIndex + 1} (линия {level.lineIndex + 1}): {oldStars} -> {stars}");
         }
 
-        if (stars != level.stars)
-        {
-            level.stars = stars;
-            level.isUnlocked = true;
+        level.stars = stars;
+        level.isUnlocked = true;
 
-            RecalculateTotalStars();
-            CheckSpecialLevelsUnlock(); // Проверяем разблокировку специальных уровней после изменения звезд
-            SaveProgress();
+        RecalculateTotalStars();
+        CheckSpecialLevelsUnlock();
+        SaveProgress();
 
-            // Вызываем события ПОСЛЕ сохранения
-            OnLevelStarsUpdated?.Invoke(levelIndex, stars);
-            OnTotalStarsUpdated?.Invoke(gameProgress.totalStars);
-            OnStarsChanged?.Invoke(gameProgress.totalStars);
+        // Вызываем события ПОСЛЕ сохранения
+        OnLevelStarsUpdated?.Invoke(levelIndex, stars);
+        OnTotalStarsUpdated?.Invoke(gameProgress.totalStars);
+        OnStarsChanged?.Invoke(gameProgress.totalStars);
 
-            if (debugMode)
-                Debug.Log($"[StarManager] События вызваны для уровня {levelIndex + 1}: {stars} звезд");
-        }
-        else
-        {
-            if (debugMode)
-                Debug.Log($"[StarManager] Звезды не изменились для уровня {levelIndex + 1}");
-        }
+        if (debugMode)
+            Debug.Log($"[StarManager] События вызваны для уровня {levelIndex + 1}: {stars} звезд");
     }
 
     private void CheckSpecialLevelsUnlock()
@@ -540,5 +576,47 @@ public class StarManager : MonoBehaviour
         }
 
         Debug.Log("[StarManager] Дано 14 звезд для тестирования первого специального уровня");
+    }
+    [ContextMenu("🔍 Проверить статус SDK")]
+    public void CheckSDKStatus()
+    {
+        Debug.Log("=== СТАТУС SDK ===");
+        Debug.Log($"SDK включен: {YG2.isSDKEnabled}");
+        Debug.Log($"Saves не null: {YG2.saves != null}");
+        Debug.Log($"StarManager инициализирован: {isInitialized}");
+
+        if (YG2.saves != null)
+        {
+            Debug.Log($"Длина сохраненных данных: {YG2.saves.GameProgress.Length} символов");
+            Debug.Log($"Последнее сохранение: {YG2.saves.lastSaveTime}");
+        }
+    }
+
+    [ContextMenu("💾 Принудительное сохранение")]
+    public void ForceSave()
+    {
+        Debug.Log("[TEST] Принудительное сохранение...");
+        SaveProgress();
+        CheckSDKStatus();
+    }
+
+    [ContextMenu("📥 Принудительная загрузка")]
+    public void ForceLoad()
+    {
+        Debug.Log("[TEST] Принудительная загрузка...");
+        LoadProgress();
+        DebugShowProgress();
+    }
+
+    [ContextMenu("🧪 Дать 5 звезд первому уровню и сохранить")]
+    public void TestSaveStars()
+    {
+        Debug.Log("[TEST] Даем 3 звезды первому уровню...");
+        SetLevelStars(0, 3);
+        Debug.Log("[TEST] Даем 2 звезды второму уровню...");
+        SetLevelStars(1, 2);
+
+        DebugShowProgress();
+        Debug.Log("[TEST] Теперь выйдите и перезайдите в игру для проверки!");
     }
 }

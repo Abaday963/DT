@@ -4376,6 +4376,7 @@ GameObject:
   - component: {fileID: 1957233837499279873}
   - component: {fileID: 1837486617328125863}
   - component: {fileID: 3463905121768609691}
+  - component: {fileID: 5900480368212639801}
   m_Layer: 5
   m_Name: level_10-1
   m_TagString: Untagged
@@ -4521,6 +4522,55 @@ MonoBehaviour:
   autoUpdate: 0
   updateInterval: 5
   debugMode: 1
+--- !u!114 &5900480368212639801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3533856931640421769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25535ee64f5170f4b851fc6ac96b1e79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelLockVisual
+  levelIndex: 11
+  lockImage: {fileID: 5613528056996268285}
+  lockedSprite: {fileID: -1364454785454338120, guid: 96bb3d9205ac3ce419667d186afdea4a, type: 3}
+  unlockedSprite: {fileID: 3768903173106346322, guid: 96bb3d9205ac3ce419667d186afdea4a, type: 3}
+  lockedObject: {fileID: 0}
+  unlockedObject: {fileID: 0}
+  hideWhenUnlocked: 0
+  useColorTint: 0
+  lockedColor: {r: 1, g: 1, b: 1, a: 1}
+  unlockedColor: {r: 0, g: 1, b: 0, a: 1}
+  useAnimation: 0
+  animationDuration: 0.3
+  animationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  debugMode: 0
 --- !u!1 &3572183087907381326
 GameObject:
   m_ObjectHideFlags: 0

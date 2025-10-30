@@ -680,7 +680,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110840, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: orthographic size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110840, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_BackGroundColor.b
@@ -973,6 +973,7 @@ MonoBehaviour:
   infiniteMode: 1
   molotovPrefab: {fileID: 7177661069518285097, guid: c1ef3fe4f552eac4388dbc6375b077ed, type: 3}
   spawnPoint: {fileID: 324191528}
+  SpawnTIme: 2
 --- !u!4 &825648017 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1649382002407086418, guid: 6ff5d38b5c193224abac1faf715dd190, type: 3}
@@ -1426,6 +1427,10 @@ PrefabInstance:
     - target: {fileID: 6510781907108420966, guid: e0d64af6dc075ce49acf9e0200e9c374, type: 3}
       propertyPath: m_Name
       value: WaterWall
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791150665731224256, guid: e0d64af6dc075ce49acf9e0200e9c374, type: 3}
+      propertyPath: evaporationTime
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6791150665731224256, guid: e0d64af6dc075ce49acf9e0200e9c374, type: 3}
       propertyPath: evaporationEffectPrefab

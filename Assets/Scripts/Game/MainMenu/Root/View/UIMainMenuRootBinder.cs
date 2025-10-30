@@ -187,31 +187,31 @@ public class UIMainMenuRootBinder : MonoBehaviour
 
     public void HandleGoToLevel6Click()
     {
-        if (CanGoToLevel(5))
+        if (CanGoToLevel(6))
             GoToLevelRequested?.Invoke(Scenes.LEVEL6);
     }
 
     public void HandleGoToLevel7Click()
     {
-        if (CanGoToLevel(6))
+        if (CanGoToLevel(7))
             GoToLevelRequested?.Invoke(Scenes.LEVEL7);
     }
 
     public void HandleGoToLevel8Click()
     {
-        if (CanGoToLevel(7))
+        if (CanGoToLevel(8))
             GoToLevelRequested?.Invoke(Scenes.LEVEL8);
     }
 
     public void HandleGoToLevel9Click()
     {
-        if (CanGoToLevel(8))
+        if (CanGoToLevel(9))
             GoToLevelRequested?.Invoke(Scenes.LEVEL9);
     }
 
     public void HandleGoToLevel10Click()
     {
-        if (CanGoToLevel(9))
+        if (CanGoToLevel(10))
             GoToLevelRequested?.Invoke(Scenes.LEVEL10);
     }
 

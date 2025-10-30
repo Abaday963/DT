@@ -2,22 +2,18 @@
 using YG;
 using UnityEngine;
 
-
 namespace YG
 {
     public partial class SavesYG
     {
-        // Данные о звёздах для каждого уровня (ключ - индекс уровня, значение - количество звёзд)
+        // СТАРЫЕ ДАННЫЕ (можете оставить для совместимости или удалить)
         public List<int> levelStars = new List<int>();
-
-        // Общее количество звёзд
         public int totalStars = 0;
-
-        // Количество разблокированных уровней
         public int unlockedLevels = 1;
-
-        // Дата последнего сохранения (для отладки)
         public string lastSaveTime = "";
+
+        // НОВАЯ СИСТЕМА - сохранение всего прогресса игры в JSON
+        public string GameProgress = "";
 
         // Конструктор для инициализации базовых значений
         public SavesYG()
@@ -25,6 +21,10 @@ namespace YG
             // Инициализируем список, если он пустой
             if (levelStars == null)
                 levelStars = new List<int>();
+
+            // Инициализируем новое поле
+            if (string.IsNullOrEmpty(GameProgress))
+                GameProgress = "";
         }
     }
 }

@@ -718,7 +718,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6132052427728110599, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 12.3
+      value: 16.4
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110599, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_LocalPosition.y
@@ -762,7 +762,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110840, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: orthographic size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6132052427728110840, guid: ebd363308c9fb544e86f694f5fb0e99c, type: 3}
       propertyPath: m_BackGroundColor.b
@@ -1002,7 +1002,7 @@ MonoBehaviour:
   vineAnimator: {fileID: 680672800}
   vineCollider: {fileID: 680672801}
   targetTag: Fire shard
-  timeToAppear: 4
+  timeToAppear: 3
   appearTrigger: Appear
   igniteTrigger: Ignite
   idleAnimation: Loza_Idle
@@ -1372,6 +1372,7 @@ MonoBehaviour:
   infiniteMode: 1
   molotovPrefab: {fileID: 7177661069518285097, guid: c1ef3fe4f552eac4388dbc6375b077ed, type: 3}
   spawnPoint: {fileID: 324191528}
+  SpawnTIme: 2
 --- !u!4 &825648017 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1649382002407086418, guid: 6ff5d38b5c193224abac1faf715dd190, type: 3}
@@ -1654,7 +1655,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9202393696120428641, guid: 1bff3ccd714494b438677cd6b188d2f0, type: 3}
       propertyPath: m_Points.Array.data[19].y
-      value: 0.38368973
+      value: 0.25654668
       objectReference: {fileID: 0}
     - target: {fileID: 9202393696120428641, guid: 1bff3ccd714494b438677cd6b188d2f0, type: 3}
       propertyPath: m_Points.Array.data[20].x
@@ -5257,6 +5258,14 @@ PrefabInstance:
     - target: {fileID: 3568241894165299211, guid: fdfc1bb103596594fb0f69553467d24f, type: 3}
       propertyPath: m_Name
       value: Sheld2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6821833993818731929, guid: fdfc1bb103596594fb0f69553467d24f, type: 3}
+      propertyPath: timeToVineGrowth
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6821833993818731929, guid: fdfc1bb103596594fb0f69553467d24f, type: 3}
+      propertyPath: delayBeforeIgnite
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

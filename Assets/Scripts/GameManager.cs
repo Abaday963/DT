@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject winPanel;
     [SerializeField] private GameObject losePanel;
     [SerializeField] private GameObject restartButton;
+    [SerializeField] private GameObject restartButtonAlways; // Вторая кнопка рестарта (всегда активна, кроме меню)
     [SerializeField] private Text starsText;
     [SerializeField] private GameObject nextLevelButton;
     [SerializeField] private GameObject menuButton;
@@ -131,6 +132,11 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(InitializeSceneAfterFrame());
         }
+        else
+        {
+            // Если это не уровень (например, главное меню), обновляем кнопку рестарта
+            StartCoroutine(UpdateRestartButtonAfterFrame());
+        }
     }
 
     private IEnumerator InitializeSceneAfterFrame()
@@ -139,12 +145,20 @@ public class GameManager : MonoBehaviour
         InitializeScene();
     }
 
+    private IEnumerator UpdateRestartButtonAfterFrame()
+    {
+        yield return null;
+        FindReferences();
+        UpdateRestartButtonAlways();
+    }
+
     private void InitializeScene()
     {
         // Проверяем, что мы на уровне
         if (!IsCurrentSceneLevel())
         {
             Debug.Log($"[GameManager] Сцена {currentSceneBuildIndex} не является уровнем, пропускаем инициализацию");
+            UpdateRestartButtonAlways(); // Обновляем вторую кнопку рестарта
             return;
         }
 
@@ -170,6 +184,7 @@ public class GameManager : MonoBehaviour
         }
 
         ResetGameState();
+        UpdateRestartButtonAlways(); // Обновляем вторую кнопку рестарта
 
         if (!isRestarting)
         {
@@ -221,9 +236,22 @@ public class GameManager : MonoBehaviour
             Button[] allButtons = FindObjectsOfType<Button>();
             foreach (Button b in allButtons)
             {
-                if (b.gameObject.name.Contains("RestartButton"))
+                if (b.gameObject.name.Contains("RestartButton") && !b.gameObject.name.Contains("Always"))
                 {
                     restartButton = b.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (restartButtonAlways == null)
+        {
+            Button[] allButtons = FindObjectsOfType<Button>();
+            foreach (Button b in allButtons)
+            {
+                if (b.gameObject.name.Contains("RestartButtonAlways") || b.gameObject.name.Contains("RestartButton_Always"))
+                {
+                    restartButtonAlways = b.gameObject;
                     break;
                 }
             }
@@ -549,10 +577,11 @@ public class GameManager : MonoBehaviour
             levelManager.StopAllLevelProcesses();
         }
 
-        Debug.Log($"[GameManager] Перезапуск уровня {currentLevelIndex} (Уровень #{currentLevelIndex + 1}, сцена {currentSceneBuildIndex})");
+        // ИСПРАВЛЕНО: Всегда берем актуальную сцену напрямую
+        int sceneToRestart = SceneManager.GetActiveScene().buildIndex;
+        Debug.Log($"[GameManager] Перезапуск текущей сцены {sceneToRestart} (Уровень #{GetLogicalLevelIndex(sceneToRestart) + 1})");
 
-        // Перезапускаем текущую сцену
-        SceneManager.LoadScene(currentSceneBuildIndex);
+        SceneManager.LoadScene(sceneToRestart);
     }
 
     public void LoadNextLevel()
@@ -613,6 +642,27 @@ public class GameManager : MonoBehaviour
         StopAllCoroutines();
         Time.timeScale = 1f;
         SceneManager.LoadScene(1); // главное меню
+    }
+
+    /// <summary>
+    /// Обновляет состояние второй кнопки рестарта (активна везде, кроме главного меню)
+    /// </summary>
+    private void UpdateRestartButtonAlways()
+    {
+        if (restartButtonAlways != null)
+        {
+            bool isMainMenu = currentSceneBuildIndex == 1;
+            restartButtonAlways.SetActive(!isMainMenu);
+
+            if (!isMainMenu)
+            {
+                Debug.Log($"[GameManager] Кнопка RestartButtonAlways активирована на сцене {currentSceneBuildIndex}");
+            }
+            else
+            {
+                Debug.Log("[GameManager] Кнопка RestartButtonAlways отключена на главном меню");
+            }
+        }
     }
 
     private IEnumerator ForceUpdateUI()

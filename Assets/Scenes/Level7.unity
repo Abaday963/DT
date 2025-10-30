@@ -1060,11 +1060,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2641981435549334221, guid: 1bff3ccd714494b438677cd6b188d2f0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 21.7
+      value: 20.11
       objectReference: {fileID: 0}
     - target: {fileID: 2641981435549334221, guid: 1bff3ccd714494b438677cd6b188d2f0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 14.6
+      value: 14.8
       objectReference: {fileID: 0}
     - target: {fileID: 2641981435549334221, guid: 1bff3ccd714494b438677cd6b188d2f0, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1097,6 +1097,10 @@ PrefabInstance:
     - target: {fileID: 2641981435549334221, guid: 1bff3ccd714494b438677cd6b188d2f0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5286503794356360852, guid: 1bff3ccd714494b438677cd6b188d2f0, type: 3}
+      propertyPath: moveDistance
+      value: 5.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1611,6 +1615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa0668f160ec8d4fad456e3cd2b7fe0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firstLevelBuildIndex: 2
   useDebugMenu: 0
   restartDelay: 2
   winPanel: {fileID: 1229821717}
@@ -1618,6 +1623,7 @@ MonoBehaviour:
   restartButton: {fileID: 253415633}
   starsText: {fileID: 0}
   nextLevelButton: {fileID: 0}
+  menuButton: {fileID: 0}
   starIcons:
   - {fileID: 1797902001}
   - {fileID: 1180396208}
